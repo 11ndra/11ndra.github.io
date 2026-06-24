@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- Критически важный тег для адаптивности на мобильных устройствах -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Мой персональный сайт, сверстанный вручную для GitHub Pages.">
+    <title>Мой персональный сайт</title>
+
+    <style>
+        /* * 1. CSS-ПЕРЕМЕННЫЕ (Design Tokens)
+         * Позволяют менять цветовую схему всего сайта изменением одной строчки.
+         */
+        :root {
+            --color-bg: #f3f4f6;          /* Светло-серый фон страницы */
+            --color-surface: #ffffff;     /* Белый фон для карточек */
+            --color-text-main: #1f2937;   /* Темно-серый текст для контраста */
+            --color-text-muted: #6b7280;  /* Приглушенный текст для второстепенной инфы */
+            --color-primary: #3b82f6;     /* Синий акцентный цвет (кнопки, ссылки) */
+            --color-primary-hover: #2563eb;
+            --radius-md: 12px;            /* Современные скругленные углы */
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* * 2. БАЗОВЫЙ СБРОС (Reset)
+         * Устраняет различия в отображении между браузерами (Chrome, Safari, Firefox).
+         */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Использование системных шрифтов — сайт выглядит нативно на любой ОС без загрузки лишних файлов */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* * 3. СТРУКТУРНЫЕ ЭЛЕМЕНТЫ (Layout)
+         */
+        .container {
+            max-width: 800px; /* Ограничиваем ширину для удобочитаемости на широких экранах */
+            margin: 0 auto;   /* Центрируем контейнер */
+        }
+
+        header {
+            background-color: var(--color-surface);
+            padding: 3rem 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            color: var(--color-text-muted);
+            font-size: 1.125rem;
+        }
+
+        main .section-card {
+            background-color: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-bg);
+        }
+
+        /* * 4. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ
+         */
+        .btn {
+            display: inline-block;
+            background-color: var(--color-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .interactive-area {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--color-bg);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #greeting-output {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin-top: 3rem;
+            padding-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Шапка сайта -->
+        <header>
+            <h1>Привет, я Разработчик</h1>
+            <p>Это моя персональная страница, созданная вручную.</p>
+        </header>
+
+        <!-- Основной контент -->
+        <main>
+            <!-- Секция "Обо мне" -->
+            <section class="section-card">
+                <h2>Обо мне</h2>
+                <p>Я создаю этот сайт с нуля, чтобы разобраться в основах HTML, CSS и JavaScript. Моя цель — разместить этот код на GitHub Pages и получить полностью рабочий проект в сети.</p>
+            </section>
+
+            <!-- Секция с демонстрацией JavaScript -->
+            <section class="section-card">
+                <h2>Интерактивность</h2>
+                <p>Здесь работает небольшой скрипт. Нажмите на кнопку, чтобы увидеть результат.</p>
+                
+                <div class="interactive-area">
+                    <button id="sayHelloBtn" class="btn">Поздороваться</button>
+                    <p id="greeting-output"></p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Подвал сайта -->
+        <footer>
+            <p>&copy; 2026 Мой первый сайт. Развернуто на GitHub Pages.</p>
+        </footer>
+    </div>
+
+    <!-- 
+      5. JAVASCRIPT ЛОГИКА
+      Размещается в конце body, чтобы не блокировать отрисовку HTML.
+    -->
+    <script>
+        // Ждем, пока браузер полностью построит DOM-дерево
+        document.addEventListener('DOMContentLoaded', function() {
+            // Находим кнопку и параграф для вывода текста по их ID
+            const button = document.getElementById('sayHelloBtn');
+            const output = document.getElementById('greeting-output');
+
+            // Добавляем слушатель события "клик" (нажатие мыши или тап на телефоне)
+            button.addEventListener('click', function() {
+                // Получаем текущее время
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ru-RU');
+                
+                // Изменяем текстовое содержимое элемента
+                output.textContent = `Привет! Вы нажали кнопку в ${timeString}. JS работает отлично!`;
+                
+                // Дополнительно выводим лог в консоль разработчика (F12)
+                console.log('Кнопка была успешно нажата.');
+            });
+        });
+    </script>
+
+</body>
+</html>
