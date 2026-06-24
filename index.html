@@ -2,29 +2,31 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Критически важный тег для адаптивности на мобильных устройствах -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Мой персональный сайт, сверстанный вручную для GitHub Pages.">
-    <title>Мой персональный сайт</title>
+    <meta name="description" content="For the one of the most interesting person in the world and owner of my soul">
+    <title>I'm not a romantic person, and I don't know how to do it properly. So I choose to do it with more IT way :)</title>
+
+    <!-- Подключение шрифтов Google Fonts для элегантной типографики -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <style>
-        /* * 1. CSS-ПЕРЕМЕННЫЕ (Design Tokens)
-         * Позволяют менять цветовую схему всего сайта изменением одной строчки.
-         */
+        /* =========================================
+           1. CSS-ПЕРЕМЕННЫЕ (Цветовая палитра)
+           ========================================= */
         :root {
-            --color-bg: #f3f4f6;          /* Светло-серый фон страницы */
-            --color-surface: #ffffff;     /* Белый фон для карточек */
-            --color-text-main: #1f2937;   /* Темно-серый текст для контраста */
-            --color-text-muted: #6b7280;  /* Приглушенный текст для второстепенной инфы */
-            --color-primary: #3b82f6;     /* Синий акцентный цвет (кнопки, ссылки) */
-            --color-primary-hover: #2563eb;
-            --radius-md: 12px;            /* Современные скругленные углы */
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            /* Глубокий, чувственный фиолетовый градиент */
+            --bg-gradient: linear-gradient(135deg, #2a0845 0%, #6441A5 100%);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.75);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
         }
 
-        /* * 2. БАЗОВЫЙ СБРОС (Reset)
-         * Устраняет различия в отображении между браузерами (Chrome, Safari, Firefox).
-         */
+        /* =========================================
+           2. БАЗОВЫЕ НАСТРОЙКИ (Reset & Body)
+           ========================================= */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -32,159 +34,191 @@
         }
 
         body {
-            /* Использование системных шрифтов — сайт выглядит нативно на любой ОС без загрузки лишних файлов */
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--color-bg);
-            color: var(--color-text-main);
-            line-height: 1.6;
+            /* Фоновый градиент на весь экран */
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            
+            /* Flexbox для идеального центрирования контента по вертикали и горизонтали */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
+            overflow: hidden; /* Скрываем ползунки прокрутки, чтобы сердечки не ломали верстку */
         }
 
-        /* * 3. СТРУКТУРНЫЕ ЭЛЕМЕНТЫ (Layout)
-         */
-        .container {
-            max-width: 800px; /* Ограничиваем ширину для удобочитаемости на широких экранах */
-            margin: 0 auto;   /* Центрируем контейнер */
-        }
-
-        header {
-            background-color: var(--color-surface);
-            padding: 3rem 2rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
+        /* =========================================
+           3. КОНТЕЙНЕР "МАТОВОЕ СТЕКЛО" (Glassmorphism)
+           ========================================= */
+        .glass-card {
+            background: var(--glass-bg);
+            /* Магическое свойство, создающее эффект размытия позади элемента */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); /* Поддержка для Safari */
+            
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            max-width: 500px;
+            width: 100%;
             text-align: center;
-            margin-bottom: 2rem;
+            
+            /* Мягкая тень для отделения карточки от фона */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            
+            /* Плавное появление карточки при загрузке */
+            animation: fadeIn 1.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
+        /* =========================================
+           4. ТИПОГРАФИКА
+           ========================================= */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
         }
 
-        header p {
-            color: var(--color-text-muted);
-            font-size: 1.125rem;
+        p.message {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
         }
 
-        main .section-card {
-            background-color: var(--color-surface);
-            padding: 2rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--color-bg);
-        }
-
-        /* * 4. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ
-         */
-        .btn {
-            display: inline-block;
-            background-color: var(--color-primary);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            border: none;
+        /* =========================================
+           5. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ (Кнопка)
+           ========================================= */
+        .btn-romantic {
+            background: transparent;
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 12px 28px;
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
-            margin-top: 1rem;
+            transition: all 0.4s ease;
+            outline: none;
         }
 
-        .btn:hover {
-            background-color: var(--color-primary-hover);
+        .btn-romantic:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .interactive-area {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: var(--color-bg);
-            border-radius: 8px;
-            text-align: center;
+        /* =========================================
+           6. АНИМАЦИИ
+           ========================================= */
+        /* Анимация появления карточки */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        #greeting-output {
-            margin-top: 1rem;
-            font-weight: bold;
-            color: var(--color-primary);
+        /* Класс для летящих сердечек, которые создает JavaScript */
+        .floating-heart {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.5rem;
+            z-index: 10;
+            animation: floatUp 1.2s ease-out forwards;
+            /* Легкое свечение для сердечек */
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
         }
 
-        footer {
-            text-align: center;
-            color: var(--color-text-muted);
-            font-size: 0.875rem;
-            margin-top: 3rem;
-            padding-bottom: 2rem;
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.8) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120px) scale(1.5) rotate(20deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Шапка сайта -->
-        <header>
-            <h1>Привет, я Разработчик</h1>
-            <p>Это моя персональная страница, созданная вручную.</p>
-        </header>
+    <!-- Главный контейнер-карточка -->
+    <div class="glass-card">
+        <h1>Для тебя</h1>
+        
+        <p class="message">
+            Я долго думал, как лучше всего выразить свои чувства. 
+            Слова иногда кажутся слишком простыми, поэтому я решил написать для тебя эту страницу. 
+            Здесь нет ничего лишнего — только искренность и то, что скрыто в моем сердце.
+        </p>
 
-        <!-- Основной контент -->
-        <main>
-            <!-- Секция "Обо мне" -->
-            <section class="section-card">
-                <h2>Обо мне</h2>
-                <p>Я создаю этот сайт с нуля, чтобы разобраться в основах HTML, CSS и JavaScript. Моя цель — разместить этот код на GitHub Pages и получить полностью рабочий проект в сети.</p>
-            </section>
-
-            <!-- Секция с демонстрацией JavaScript -->
-            <section class="section-card">
-                <h2>Интерактивность</h2>
-                <p>Здесь работает небольшой скрипт. Нажмите на кнопку, чтобы увидеть результат.</p>
-                
-                <div class="interactive-area">
-                    <button id="sayHelloBtn" class="btn">Поздороваться</button>
-                    <p id="greeting-output"></p>
-                </div>
-            </section>
-        </main>
-
-        <!-- Подвал сайта -->
-        <footer>
-            <p>&copy; 2026 Мой первый сайт. Развернуто на GitHub Pages.</p>
-        </footer>
+        <button id="heartBtn" class="btn-romantic">Узнать больше</button>
     </div>
 
-    <!-- 
-      5. JAVASCRIPT ЛОГИКА
-      Размещается в конце body, чтобы не блокировать отрисовку HTML.
-    -->
+    <!-- Скрипт для создания эффекта сердечек -->
     <script>
-        // Ждем, пока браузер полностью построит DOM-дерево
-        document.addEventListener('DOMContentLoaded', function() {
-            // Находим кнопку и параграф для вывода текста по их ID
-            const button = document.getElementById('sayHelloBtn');
-            const output = document.getElementById('greeting-output');
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('heartBtn');
+            
+            // Набор эмодзи для генерации (оттенки белого и фиолетового/розового)
+            const hearts = ['🤍', '✨', '💜', '🌸', '💕'];
 
-            // Добавляем слушатель события "клик" (нажатие мыши или тап на телефоне)
-            button.addEventListener('click', function() {
-                // Получаем текущее время
-                const now = new Date();
-                const timeString = now.toLocaleTimeString('ru-RU');
+            btn.addEventListener('click', (e) => {
+                // Предотвращаем стандартное поведение
+                e.preventDefault();
                 
-                // Изменяем текстовое содержимое элемента
-                output.textContent = `Привет! Вы нажали кнопку в ${timeString}. JS работает отлично!`;
-                
-                // Дополнительно выводим лог в консоль разработчика (F12)
-                console.log('Кнопка была успешно нажата.');
+                // Меняем текст кнопки после первого нажатия (маленькая деталь для интерактивности)
+                if (btn.textContent !== "Я люблю тебя") {
+                    btn.textContent = "Я люблю тебя";
+                    btn.style.borderColor = "rgba(255, 255, 255, 0.8)";
+                    btn.style.background = "rgba(255, 255, 255, 0.1)";
+                }
+
+                // Количество частиц за один клик
+                const amount = 10;
+
+                for (let i = 0; i < amount; i++) {
+                    createHeart(e.clientX, e.clientY);
+                }
             });
+
+            function createHeart(x, y) {
+                const heart = document.createElement('div');
+                heart.classList.add('floating-heart');
+                
+                // Выбираем случайный эмодзи из массива
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                
+                // Генерируем случайное смещение координат, чтобы сердечки вылетали облаком
+                const offsetX = (Math.random() - 0.5) * 100;
+                const offsetY = (Math.random() - 0.5) * 50;
+                
+                heart.style.left = (x + offsetX) + 'px';
+                heart.style.top = (y + offsetY) + 'px';
+                
+                // Добавляем элемент на страницу
+                document.body.appendChild(heart);
+                
+                // Удаляем элемент после завершения анимации (1.2 секунды), чтобы не засорять память (Garbage Collection)
+                setTimeout(() => {
+                    heart.remove();
+                }, 1200);
+            }
         });
     </script>
-
 </body>
 </html>
