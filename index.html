@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="For the one and only">
-    <title>Для тебя</title>
+    <meta name="description" content="Для особенного человека">
+    <title>For the owner of my soul and the most interesting person in my life</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +21,7 @@
             --glass-bg: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.15);
             --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --error-color: #ff4b4b;
         }
 
         /* =========================================
@@ -41,12 +42,116 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            overflow: hidden; /* Скрываем прокрутку, чтобы сердечки и модалки не ломали верстку */
+            overflow: hidden; 
         }
 
         /* =========================================
-           3. КОНТЕЙНЕР "МАТОВОЕ СТЕКЛО" (Главная карточка)
+           3. ЭКРАН БЛОКИРОВКИ (Lock Screen)
            ========================================= */
+        #lockScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        #lockScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .lock-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .lock-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .lock-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .password-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .password-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 0.2em; /* Делаем символы пароля чуть шире */
+        }
+
+        .password-input:focus {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: normal;
+        }
+
+        /* Класс ошибки (присваивается через JS) */
+        .password-input.error {
+            border-color: var(--error-color);
+            background: rgba(255, 75, 75, 0.1);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* =========================================
+           4. ОСНОВНОЙ КОНТЕНТ (Скрыт по умолчанию)
+           ========================================= */
+        #mainContent {
+            /* Скрываем контент изначально, чтобы он не просвечивал и не был кликабельным */
+            display: none;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -58,13 +163,18 @@
             width: 100%;
             text-align: center;
             box-shadow: var(--glass-shadow);
-            animation: fadeIn 1s ease-out forwards;
-            position: relative; /* Чтобы не перекрываться модалками */
+            position: relative;
             z-index: 10;
+            opacity: 0; /* Изначально прозрачна */
+        }
+
+        /* Класс анимации добавляется через JS после разблокировки */
+        .glass-card.animate-in {
+            animation: fadeIn 1s ease-out forwards;
         }
 
         /* =========================================
-           4. ТИПОГРАФИКА
+           5. ТИПОГРАФИКА И КНОПКИ
            ========================================= */
         h1 {
             font-family: 'Playfair Display', serif;
@@ -95,6 +205,7 @@
             cursor: pointer;
             transition: all 0.4s ease;
             outline: none;
+            width: 100%;
         }
 
         .btn-romantic:hover {
@@ -104,8 +215,13 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
+        /* Кнопка внутри карточки (не на весь экран) */
+        .glass-card .btn-romantic {
+            width: auto;
+        }
+
         /* =========================================
-           5. ГАЛЕРЕЯ МОМЕНТОВ (Фоновые скриншоты)
+           6. ГАЛЕРЕЯ МОМЕНТОВ
            ========================================= */
         .moment-gallery {
             position: fixed;
@@ -119,13 +235,16 @@
             align-items: center;
             padding: 50px;
             gap: 20px;
-            z-index: 1; /* Позади главной карточки */
-            opacity: 0.6; /* Легкая прозрачность для фонового эффекта */
-            pointer-events: none; /* Игнорируем клики в обычном состоянии */
+            z-index: 1; 
+            opacity: 0; /* Изначально прозрачна */
+            pointer-events: none; 
+            transition: opacity 1.5s ease;
         }
 
-        /* Класс, который JS добавляет к галерее при наведении на главную карточку,
-           чтобы сделать скриншоты доступными для клика */
+        .moment-gallery.show {
+            opacity: 0.6;
+        }
+
         .moment-gallery.active {
             pointer-events: auto;
         }
@@ -139,16 +258,15 @@
             padding: 10px;
             cursor: pointer;
             transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
-            opacity: 0.3; /* Очень тусклые по умолчанию */
+            opacity: 0.3; 
         }
 
         .moment-item:hover {
             transform: scale(1.05) translateY(-5px);
-            opacity: 1; /* Яркие при наведении */
+            opacity: 1; 
             box-shadow: var(--glass-shadow);
         }
 
-        /* Заглушки для изображений */
         .moment-item img {
             width: 100%;
             height: auto;
@@ -156,7 +274,6 @@
             display: block;
         }
         
-        /* Стилизация placeholder-блоков */
         .moment-placeholder {
             width: 120px;
             height: 120px;
@@ -169,14 +286,13 @@
             font-size: 0.8rem;
         }
 
-        /* Управление позиционированием "летящих" скриншотов */
         .moment-item.pos-1 { top: 15%; left: 10%; transform: rotate(-15deg); }
         .moment-item.pos-2 { top: 20%; right: 15%; transform: rotate(10deg); }
         .moment-item.pos-3 { bottom: 15%; left: 20%; transform: rotate(5deg); }
         .moment-item.pos-4 { bottom: 20%; right: 10%; transform: rotate(-10deg); }
 
         /* =========================================
-           6. МОДАЛЬНОЕ ОКНО (Просмотр подробностей)
+           7. МОДАЛЬНОЕ ОКНО
            ========================================= */
         .modal-overlay {
             position: fixed;
@@ -184,12 +300,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Темный фон */
+            background: rgba(0, 0, 0, 0.7); 
             backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* Самый верхний слой */
+            z-index: 1000; 
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease;
@@ -253,9 +369,10 @@
         }
 
         /* =========================================
-           7. АНИМАЦИИ
+           8. АНИМАЦИИ
            ========================================= */
         @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -277,94 +394,174 @@
 </head>
 <body>
 
-    <div class="glass-card">
-        <h1>Жмак!</h1>
-        <p class="message">
-            I'm not a romantic person. I don't know how to properly offer, or say, or write about my feelings or about bonding together. 
-            But after all of this dialogues, time we spent together, all the fun and sad moments that we shared.
-            I've decided that I wanna continue it not as close friends, but as a couple and future husband and wife.
-            Once, you said that one of your love language is "pastime". So, let's dive into a little statistics that I collected for you :)
-        </p>
-        <button id="heartBtn" class="btn-romantic">Узнать больше</button>
-    </div>
-
-    <div class="moment-gallery" id="momentGallery">
-        
-        <div class="moment-item pos-1" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
-            <div class="moment-placeholder">📸 Концерт</div>
-        </div>
-
-        <div class="moment-item pos-2" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
-            <div class="moment-placeholder">📸 Парк</div>
-        </div>
-
-        <div class="moment-item pos-3" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
-            <div class="moment-placeholder">📸 Вечер дома</div>
-        </div>
-
-        <div class="moment-item pos-4" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
-            <div class="moment-placeholder">📸 Коты</div>
+    <!-- ЭКРАН БЛОКИРОВКИ -->
+    <div id="lockScreen">
+        <div class="lock-card">
+            <div class="lock-icon">🔒</div>
+            <h2 class="lock-title">Secretly made cause I don't know how to properly express my feelings</h2>
+            <p class="lock-subtitle">Wanted to make it more interesting, so enter the password, please :)</p>
+            
+            <div class="password-container">
+                <input type="password" id="passwordInput" class="password-input" placeholder="Введите пароль">
+            </div>
+            
+            <button id="unlockBtn" class="btn-romantic">Dive in, darling!</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <button class="btn-close" id="modalClose">&times;</button>
-            <h2 id="modalTitle">Заголовок момента</h2>
-            <img src="" alt="" id="modalImage">
-            <p id="modalDetails">Подробное описание...</p>
+    <!-- ОСНОВНОЙ КОНТЕНТ (Скрыт до ввода пароля) -->
+    <div id="mainContent">
+        <div class="glass-card" id="mainCard">
+            <h1>For you</h1>
+            <p class="message">
+                I'm not a romantic person. I don't know how to properly or in the right way to offer, to express or to ask, etc this type of things.
+                But after the time we've spent together, secrets, fun and sad moment's we shared - I decided to make this page.
+                Once, you said that one of your love language is "pastime".
+                So, this page dedicated to our "pastime" and I want to continue it not only as a close or best friends, but as a couple. As a future husband and wife.
+                As a independent family with pure love, respect, trust, loyalty and other important things.
+            </p>
+            <button id="heartBtn" class="btn-romantic">Жмак</button>
+        </div>
+
+        <div class="moment-gallery" id="momentGallery">
+            <div class="moment-item pos-1" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
+                <div class="moment-placeholder">📸 Концерт</div>
+            </div>
+
+            <div class="moment-item pos-2" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
+                <div class="moment-placeholder">📸 Парк</div>
+            </div>
+
+            <div class="moment-item pos-3" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
+                <div class="moment-placeholder">📸 Вечер дома</div>
+            </div>
+
+            <div class="moment-item pos-4" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
+                <div class="moment-placeholder">📸 Коты</div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal-content">
+                <button class="btn-close" id="modalClose">&times;</button>
+                <h2 id="modalTitle">Заголовок момента</h2>
+                <img src="" alt="" id="modalImage">
+                <p id="modalDetails">Подробное описание...</p>
+            </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById('heartBtn');
+            // === ЛОГИКА БЛОКИРОВКИ (С ХЕШИРОВАНИЕМ) ===
+            // ВАЖНО: Мы больше не храним пароль в открытом виде! 
+            // Мы храним его "математический отпечаток" (хеш). 
+            // Ваш персональный хеш установлен ниже.
+            const SECRET_HASH = "901f0c29"; 
+
+            // Математическая функция преобразования текста в нечитаемый хеш
+            function generateHash(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash |= 0; // Преобразуем в 32-битное целое число
+                }
+                return (hash >>> 0).toString(16); // Делаем число положительным и переводим в 16-ричный формат
+            }
+
+            const lockScreen = document.getElementById('lockScreen');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const passwordInput = document.getElementById('passwordInput');
+            const mainContent = document.getElementById('mainContent');
+            const mainCard = document.getElementById('mainCard');
             const gallery = document.getElementById('momentGallery');
+
+            function attemptUnlock() {
+                // Берем введенный текст
+                const inputValue = passwordInput.value.trim();
+
+                // Превращаем введенный текст в хеш
+                const inputHash = generateHash(inputValue);
+
+                // === ИНСТРУМЕНТ ДЛЯ ВАС (РАЗРАБОТЧИКА) ===
+                // Откройте консоль (F12) в браузере, чтобы скопировать новый хеш!
+                console.log(`[Настройка пароля] Вы ввели: "${inputValue}". Хеш для этого слова: "${inputHash}"`);
+
+                // Сравниваем ХЕШИ, а не сам текст
+                if (inputHash === SECRET_HASH) {
+                    // Пароль верный: прячем экран блокировки
+                    lockScreen.classList.add('hidden');
+                    
+                    // Удаляем экран блокировки из DOM через 800мс (время окончания CSS-анимации растворения), 
+                    // чтобы он не блокировал клики на сайте
+                    setTimeout(() => {
+                        lockScreen.style.display = 'none';
+                        
+                        // Показываем основной контент (Flex-контейнер)
+                        mainContent.style.display = 'flex';
+                        
+                        // Запускаем анимации появления карточки и галереи
+                        setTimeout(() => {
+                            mainCard.classList.add('animate-in');
+                            gallery.classList.add('show');
+                        }, 50); // Небольшая задержка для корректного срабатывания CSS-переходов
+                        
+                    }, 800); 
+
+                } else {
+                    // Пароль неверный: запускаем анимацию ошибки
+                    passwordInput.classList.add('error');
+                    
+                    // Снимаем класс ошибки через 400мс, чтобы можно было запустить анимацию снова при повторной ошибке
+                    setTimeout(() => {
+                        passwordInput.classList.remove('error');
+                    }, 400);
+                }
+            }
+
+            // Проверка пароля по клику на кнопку
+            unlockBtn.addEventListener('click', attemptUnlock);
+
+            // Проверка пароля по нажатию клавиши Enter в поле ввода
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    attemptUnlock();
+                }
+            });
+
+
+            // === ОСТАЛЬНАЯ ЛОГИКА (Сайт) ===
+            const btn = document.getElementById('heartBtn');
             const hearts = ['🤍', '✨', '💜', '🌸', '💕'];
             
-            // Логика модального окна
             const overlay = document.getElementById('modalOverlay');
             const closeBtn = document.getElementById('modalClose');
             const modalTitle = document.getElementById('modalTitle');
             const modalDetails = document.getElementById('modalDetails');
             const momentItems = document.querySelectorAll('.moment-item');
 
-            // 1. Управление активацией галереи
-            // Сайт остается чистым, пока пользователь не "задержится" на главной карточке
-            const mainCard = document.querySelector('.glass-card');
-            
             mainCard.addEventListener('mouseenter', () => {
                 gallery.classList.add('active');
             });
             
-            // Если вы хотите, чтобы галерея отключалась, раскомментируйте это:
-            // mainCard.addEventListener('mouseleave', () => {
-            //     gallery.classList.remove('active');
-            // });
-
-            // 2. Логика открытия модального окна
             momentItems.forEach(item => {
                 item.addEventListener('click', () => {
                     modalTitle.textContent = item.getAttribute('data-title');
                     modalDetails.textContent = item.getAttribute('data-details');
-                    
-                    // Показываем оверлей
                     overlay.classList.add('active');
                 });
             });
 
-            // 3. Логика закрытия
             function closeModal() {
                 overlay.classList.remove('active');
             }
 
             closeBtn.addEventListener('click', closeModal);
             overlay.addEventListener('click', (e) => {
-                // Закрываем, только если клик был по темному фону, а не по самой карточке
                 if (e.target === overlay) closeModal();
             });
 
-            // Логика кнопки сердечек
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const amount = 8;
