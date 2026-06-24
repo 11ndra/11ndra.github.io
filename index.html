@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="For the one of the most interesting person in the world and owner of my soul">
-    <title>I'm not a romantic person, and I don't know how to do it properly. So I choose to do it with more IT way :)</title>
+    <meta name="description" content="For the one and only">
+    <title>Для тебя</title>
 
-    <!-- Подключение шрифтов Google Fonts для элегантной типографики -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <style>
         /* =========================================
-           1. CSS-ПЕРЕМЕННЫЕ (Цветовая палитра)
+           1. CSS-ПЕРЕМЕННЫЕ
            ========================================= */
         :root {
-            /* Глубокий, чувственный фиолетовый градиент */
             --bg-gradient: linear-gradient(135deg, #2a0845 0%, #6441A5 100%);
             --text-main: #ffffff;
             --text-muted: rgba(255, 255, 255, 0.75);
             --glass-bg: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
         /* =========================================
-           2. БАЗОВЫЕ НАСТРОЙКИ (Reset & Body)
+           2. БАЗОВЫЕ НАСТРОЙКИ
            ========================================= */
         * {
             box-sizing: border-box;
@@ -34,43 +33,34 @@
         }
 
         body {
-            /* Фоновый градиент на весь экран */
             background: var(--bg-gradient);
             color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
-            
-            /* Flexbox для идеального центрирования контента по вертикали и горизонтали */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            overflow: hidden; /* Скрываем ползунки прокрутки, чтобы сердечки не ломали верстку */
+            overflow: hidden; /* Скрываем прокрутку, чтобы сердечки и модалки не ломали верстку */
         }
 
         /* =========================================
-           3. КОНТЕЙНЕР "МАТОВОЕ СТЕКЛО" (Glassmorphism)
+           3. КОНТЕЙНЕР "МАТОВОЕ СТЕКЛО" (Главная карточка)
            ========================================= */
         .glass-card {
             background: var(--glass-bg);
-            /* Магическое свойство, создающее эффект размытия позади элемента */
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); /* Поддержка для Safari */
-            
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 3rem 2.5rem;
             max-width: 500px;
             width: 100%;
             text-align: center;
-            
-            /* Мягкая тень для отделения карточки от фона */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            
-            /* Плавное появление карточки при загрузке */
-            animation: fadeIn 1.5s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
+            box-shadow: var(--glass-shadow);
+            animation: fadeIn 1s ease-out forwards;
+            position: relative; /* Чтобы не перекрываться модалками */
+            z-index: 10;
         }
 
         /* =========================================
@@ -92,9 +82,6 @@
             font-weight: 300;
         }
 
-        /* =========================================
-           5. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ (Кнопка)
-           ========================================= */
         .btn-romantic {
             background: transparent;
             color: var(--text-main);
@@ -118,79 +105,269 @@
         }
 
         /* =========================================
-           6. АНИМАЦИИ
+           5. ГАЛЕРЕЯ МОМЕНТОВ (Фоновые скриншоты)
            ========================================= */
-        /* Анимация появления карточки */
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .moment-gallery {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            gap: 20px;
+            z-index: 1; /* Позади главной карточки */
+            opacity: 0.6; /* Легкая прозрачность для фонового эффекта */
+            pointer-events: none; /* Игнорируем клики в обычном состоянии */
         }
 
-        /* Класс для летящих сердечек, которые создает JavaScript */
+        /* Класс, который JS добавляет к галерее при наведении на главную карточку,
+           чтобы сделать скриншоты доступными для клика */
+        .moment-gallery.active {
+            pointer-events: auto;
+        }
+
+        .moment-item {
+            position: absolute;
+            background: var(--glass-bg);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
+            opacity: 0.3; /* Очень тусклые по умолчанию */
+        }
+
+        .moment-item:hover {
+            transform: scale(1.05) translateY(-5px);
+            opacity: 1; /* Яркие при наведении */
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Заглушки для изображений */
+        .moment-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+        }
+        
+        /* Стилизация placeholder-блоков */
+        .moment-placeholder {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Управление позиционированием "летящих" скриншотов */
+        .moment-item.pos-1 { top: 15%; left: 10%; transform: rotate(-15deg); }
+        .moment-item.pos-2 { top: 20%; right: 15%; transform: rotate(10deg); }
+        .moment-item.pos-3 { bottom: 15%; left: 20%; transform: rotate(5deg); }
+        .moment-item.pos-4 { bottom: 20%; right: 10%; transform: rotate(-10deg); }
+
+        /* =========================================
+           6. МОДАЛЬНОЕ ОКНО (Просмотр подробностей)
+           ========================================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Темный фон */
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Самый верхний слой */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--glass-shadow);
+            transform: scale(0.9);
+            transition: transform 0.5s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-content p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .btn-close:hover {
+            color: var(--text-main);
+        }
+
+        /* =========================================
+           7. АНИМАЦИИ
+           ========================================= */
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .floating-heart {
             position: absolute;
             pointer-events: none;
             font-size: 1.5rem;
             z-index: 10;
             animation: floatUp 1.2s ease-out forwards;
-            /* Легкое свечение для сердечек */
             filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
         }
 
         @keyframes floatUp {
-            0% {
-                transform: translateY(0) scale(0.8) rotate(0deg);
-                opacity: 0;
-            }
-            20% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-120px) scale(1.5) rotate(20deg);
-                opacity: 0;
-            }
+            0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.5) rotate(20deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Главный контейнер-карточка -->
     <div class="glass-card">
-        <h1>Для тебя</h1>
-        
+        <h1>Жмак!</h1>
         <p class="message">
-            Есть в мире вещи которые я не совсем понимаю, ровно также, как и вещи концепция которых не умещается в мою голову. 
-            Но есть ты, которая однажды поделилась, что для тебя важно времяпрепровождение с человеком. 
-            И исходя из статистики, которая имеется у меня на руках, мне ясно одно с чем я бы хотел поделиться.
+            I'm not a romantic person. I don't know how to properly offer, or say, or write about my feelings or about bonding together. 
+            But after all of this dialogues, time we spent together, all the fun and sad moments that we shared.
+            I've decided that I wanna continue it not as close friends, but as a couple and future husband and wife.
+            Once, you said that one of your love language is "pastime". So, let's dive into a little statistics that I collected for you :)
         </p>
-
-        <button id="heartBtn" class="btn-romantic">Жмак</button>
+        <button id="heartBtn" class="btn-romantic">Узнать больше</button>
     </div>
 
-    <!-- Скрипт для создания эффекта сердечек -->
+    <div class="moment-gallery" id="momentGallery">
+        
+        <div class="moment-item pos-1" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
+            <div class="moment-placeholder">📸 Концерт</div>
+        </div>
+
+        <div class="moment-item pos-2" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
+            <div class="moment-placeholder">📸 Парк</div>
+        </div>
+
+        <div class="moment-item pos-3" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
+            <div class="moment-placeholder">📸 Вечер дома</div>
+        </div>
+
+        <div class="moment-item pos-4" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
+            <div class="moment-placeholder">📸 Коты</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="btn-close" id="modalClose">&times;</button>
+            <h2 id="modalTitle">Заголовок момента</h2>
+            <img src="" alt="" id="modalImage">
+            <p id="modalDetails">Подробное описание...</p>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('heartBtn');
-            
-            // Набор эмодзи для генерации (оттенки белого и фиолетового/розового)
+            const gallery = document.getElementById('momentGallery');
             const hearts = ['🤍', '✨', '💜', '🌸', '💕'];
+            
+            // Логика модального окна
+            const overlay = document.getElementById('modalOverlay');
+            const closeBtn = document.getElementById('modalClose');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDetails = document.getElementById('modalDetails');
+            const momentItems = document.querySelectorAll('.moment-item');
 
+            // 1. Управление активацией галереи
+            // Сайт остается чистым, пока пользователь не "задержится" на главной карточке
+            const mainCard = document.querySelector('.glass-card');
+            
+            mainCard.addEventListener('mouseenter', () => {
+                gallery.classList.add('active');
+            });
+            
+            // Если вы хотите, чтобы галерея отключалась, раскомментируйте это:
+            // mainCard.addEventListener('mouseleave', () => {
+            //     gallery.classList.remove('active');
+            // });
+
+            // 2. Логика открытия модального окна
+            momentItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    modalTitle.textContent = item.getAttribute('data-title');
+                    modalDetails.textContent = item.getAttribute('data-details');
+                    
+                    // Показываем оверлей
+                    overlay.classList.add('active');
+                });
+            });
+
+            // 3. Логика закрытия
+            function closeModal() {
+                overlay.classList.remove('active');
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', (e) => {
+                // Закрываем, только если клик был по темному фону, а не по самой карточке
+                if (e.target === overlay) closeModal();
+            });
+
+            // Логика кнопки сердечек
             btn.addEventListener('click', (e) => {
-                // Предотвращаем стандартное поведение
                 e.preventDefault();
-                
-                // Меняем текст кнопки после первого нажатия (маленькая деталь для интерактивности)
-                if (btn.textContent !== "Я люблю тебя") {
-                    btn.textContent = "Я люблю тебя";
-                    btn.style.borderColor = "rgba(255, 255, 255, 0.8)";
-                    btn.style.background = "rgba(255, 255, 255, 0.1)";
-                }
-
-                // Количество частиц за один клик
-                const amount = 10;
-
+                const amount = 8;
                 for (let i = 0; i < amount; i++) {
                     createHeart(e.clientX, e.clientY);
                 }
@@ -199,24 +376,13 @@
             function createHeart(x, y) {
                 const heart = document.createElement('div');
                 heart.classList.add('floating-heart');
-                
-                // Выбираем случайный эмодзи из массива
                 heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-                
-                // Генерируем случайное смещение координат, чтобы сердечки вылетали облаком
-                const offsetX = (Math.random() - 0.5) * 100;
-                const offsetY = (Math.random() - 0.5) * 50;
-                
+                const offsetX = (Math.random() - 0.5) * 80;
+                const offsetY = (Math.random() - 0.5) * 40;
                 heart.style.left = (x + offsetX) + 'px';
                 heart.style.top = (y + offsetY) + 'px';
-                
-                // Добавляем элемент на страницу
                 document.body.appendChild(heart);
-                
-                // Удаляем элемент после завершения анимации (1.2 секунды), чтобы не засорять память (Garbage Collection)
-                setTimeout(() => {
-                    heart.remove();
-                }, 1200);
+                setTimeout(() => heart.remove(), 1200);
             }
         });
     </script>
