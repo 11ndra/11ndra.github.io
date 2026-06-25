@@ -4,24 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Для особенного человека">
-    <title>For the owner of my soul and the most interesting person in my life</title>
+    <title>Для тебя</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <style>
         /* =========================================
-           1. CSS-ПЕРЕМЕННЫЕ
+           1. CSS-ПЕРЕМЕННЫЕ (Стиль Dark Luxury)
            ========================================= */
         :root {
-            --bg-gradient: linear-gradient(135deg, #2a0845 0%, #6441A5 100%);
+            --bg-gradient: linear-gradient(135deg, #10031c 0%, #2b1154 100%);
             --text-main: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.75);
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --text-muted: rgba(255, 255, 255, 0.7);
+            
+            --dark-surface: rgba(18, 5, 30, 0.95); 
+            --neon-border: rgba(180, 100, 255, 0.25); 
+            --neon-border-active: rgba(200, 150, 255, 0.6);
+            
+            --neon-glow: 0 0 25px rgba(138, 43, 226, 0.25), inset 0 0 10px rgba(138, 43, 226, 0.1);
+            --neon-glow-hover: 0 0 35px rgba(180, 100, 255, 0.4), inset 0 0 15px rgba(180, 100, 255, 0.2);
+            
             --error-color: #ff4b4b;
+            --error-glow: 0 0 20px rgba(255, 75, 75, 0.4);
         }
 
         /* =========================================
@@ -46,7 +52,117 @@
         }
 
         /* =========================================
-           3. ЭКРАН БЛОКИРОВКИ (Lock Screen)
+           3. ГЛОБАЛЬНАЯ ТЕКСТУРА И ЭФФЕКТЫ
+           ========================================= */
+        
+        .canvas-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2; 
+            opacity: 0.12; 
+            mix-blend-mode: overlay; 
+        }
+
+        .canvas-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1; 
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px; 
+        }
+
+        .canvas-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 3;
+            background: radial-gradient(circle, transparent 30%, rgba(5, 0, 15, 0.8) 120%);
+        }
+
+        .background-effects {
+            position: fixed;
+            top: -5%;
+            left: -5%;
+            width: 110vw;
+            height: 110vh;
+            z-index: 0; 
+            pointer-events: none; 
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px); 
+            opacity: 0.35; 
+            animation: floatOrb 25s infinite alternate ease-in-out;
+        }
+
+        .orb-1 { width: 450px; height: 450px; background: #9d4edd; top: 10%; left: 10%; animation-duration: 28s; }
+        .orb-2 { width: 550px; height: 550px; background: #5a189a; bottom: 10%; right: 10%; animation-duration: 34s; animation-direction: alternate-reverse; }
+        .orb-3 { width: 350px; height: 350px; background: #c77dff; top: 35%; left: 35%; animation-duration: 40s; }
+
+        @keyframes floatOrb {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15) translate(50px, 30px); }
+        }
+
+        .interest-wrapper {
+            position: absolute;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            z-index: 1;
+            /* Важное добавление: Изначально иконки прозрачные. Они проявятся только после пароля */
+            opacity: 0;
+            animation: fadeInInterest 2s ease forwards;
+        }
+
+        @keyframes fadeInInterest {
+            to { opacity: 1; }
+        }
+
+        .interest-icon {
+            font-size: 2.5rem;
+            /* Базовая прозрачность задается через JS (opacity: 0.05 - 0.15),
+               поэтому здесь мы её не жестко фиксируем */
+            filter: blur(1px); 
+            mix-blend-mode: screen; 
+            animation: drift 20s infinite linear;
+        }
+
+        @keyframes drift {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* =========================================
+           НОВОЕ: HTML5 Canvas для Созвездий (Экран блокировки)
+           ========================================= */
+        #constellationCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 5; /* Находится под карточкой пароля, но над сеткой */
+            transition: opacity 1.5s ease-out; /* Плавное исчезновение при вводе пароля */
+            pointer-events: none; /* Чтобы клики проходили сквозь него к карточке */
+        }
+
+        /* =========================================
+           4. ЭКРАН БЛОКИРОВКИ (Lock Screen)
            ========================================= */
         #lockScreen {
             position: fixed;
@@ -54,12 +170,12 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: var(--bg-gradient);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             transition: opacity 0.8s ease, visibility 0.8s ease;
+            background: transparent; 
         }
 
         #lockScreen.hidden {
@@ -67,121 +183,114 @@
             visibility: hidden;
         }
 
-        .lock-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 3rem 2.5rem;
-            max-width: 400px;
+        .luxury-card {
+            background: var(--dark-surface);
+            border: 1px solid var(--neon-border);
+            border-radius: 20px;
+            padding: 3.5rem 3rem;
+            max-width: 450px;
             width: 100%;
             text-align: center;
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--neon-glow);
+            position: relative;
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+            z-index: 10;
         }
 
         .lock-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px rgba(180, 100, 255, 0.6));
         }
 
         .lock-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
         }
 
         .lock-subtitle {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-muted);
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .password-container {
             position: relative;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .password-input {
             width: 100%;
-            background: rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--neon-border);
             border-radius: 12px;
-            padding: 12px 15px;
+            padding: 14px 15px;
             color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
-            font-size: 1rem;
+            font-size: 1.1rem;
             text-align: center;
             outline: none;
             transition: all 0.3s ease;
-            letter-spacing: 0.2em; /* Делаем символы пароля чуть шире */
+            letter-spacing: 0.2em;
         }
 
         .password-input:focus {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            border-color: var(--neon-border-active);
+            box-shadow: 0 0 15px rgba(180, 100, 255, 0.3);
         }
 
         .password-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.2);
             letter-spacing: normal;
+            font-weight: 300;
         }
 
-        /* Класс ошибки (присваивается через JS) */
         .password-input.error {
             border-color: var(--error-color);
-            background: rgba(255, 75, 75, 0.1);
+            background: rgba(255, 75, 75, 0.05);
+            box-shadow: var(--error-glow);
             animation: shake 0.4s ease-in-out;
+            color: var(--error-color);
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
         }
 
         /* =========================================
-           4. ОСНОВНОЙ КОНТЕНТ (Скрыт по умолчанию)
+           5. ОСНОВНОЙ КОНТЕНТ И ТИПОГРАФИКА
            ========================================= */
         #mainContent {
-            /* Скрываем контент изначально, чтобы он не просвечивал и не был кликабельным */
             display: none;
             width: 100%;
             height: 100%;
             justify-content: center;
             align-items: center;
-        }
-
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 3rem 2.5rem;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            box-shadow: var(--glass-shadow);
-            position: relative;
             z-index: 10;
-            opacity: 0; /* Изначально прозрачна */
         }
 
-        /* Класс анимации добавляется через JS после разблокировки */
-        .glass-card.animate-in {
-            animation: fadeIn 1s ease-out forwards;
+        #mainCard {
+            max-width: 550px;
+            z-index: 20;
+            opacity: 0;
         }
 
-        /* =========================================
-           5. ТИПОГРАФИКА И КНОПКИ
-           ========================================= */
+        #mainCard.animate-in {
+            animation: fadeInScale 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         h1 {
             font-family: 'Playfair Display', serif;
             font-weight: 400;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin-bottom: 1.5rem;
             letter-spacing: 0.05em;
+            text-shadow: 0 0 20px rgba(255,255,255, 0.3);
         }
 
         p.message {
@@ -193,30 +302,32 @@
         }
 
         .btn-romantic {
-            background: transparent;
+            background: rgba(180, 100, 255, 0.05);
             color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
             font-size: 0.9rem;
-            letter-spacing: 0.1em;
+            font-weight: 500;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
-            padding: 12px 28px;
-            border: 1px solid var(--glass-border);
+            padding: 14px 32px;
+            border: 1px solid var(--neon-border);
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             outline: none;
             width: 100%;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.1);
         }
 
         .btn-romantic:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(180, 100, 255, 0.15);
+            border-color: var(--neon-border-active);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--neon-glow-hover);
+            text-shadow: 0 0 8px rgba(255,255,255,0.5);
         }
 
-        /* Кнопка внутри карточки (не на весь экран) */
-        .glass-card .btn-romantic {
+        #mainCard .btn-romantic {
             width: auto;
         }
 
@@ -235,14 +346,14 @@
             align-items: center;
             padding: 50px;
             gap: 20px;
-            z-index: 1; 
-            opacity: 0; /* Изначально прозрачна */
+            z-index: 10; 
+            opacity: 0; 
             pointer-events: none; 
             transition: opacity 1.5s ease;
         }
 
         .moment-gallery.show {
-            opacity: 0.6;
+            opacity: 0.9;
         }
 
         .moment-gallery.active {
@@ -251,20 +362,22 @@
 
         .moment-item {
             position: absolute;
-            background: var(--glass-bg);
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 10px;
+            background: var(--dark-surface);
+            border: 1px solid var(--neon-border);
+            border-radius: 14px;
+            padding: 8px; 
             cursor: pointer;
-            transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
-            opacity: 0.3; 
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0.5; 
+            box-shadow: var(--neon-glow);
+            will-change: transform;
         }
 
         .moment-item:hover {
-            transform: scale(1.05) translateY(-5px);
             opacity: 1; 
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--neon-glow-hover);
+            border-color: var(--neon-border-active);
+            z-index: 30; 
         }
 
         .moment-item img {
@@ -275,21 +388,22 @@
         }
         
         .moment-placeholder {
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 130px;
+            height: 130px;
+            background: rgba(0, 0, 0, 0.5); 
             border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            border: 1px dashed rgba(255,255,255,0.1);
         }
 
-        .moment-item.pos-1 { top: 15%; left: 10%; transform: rotate(-15deg); }
-        .moment-item.pos-2 { top: 20%; right: 15%; transform: rotate(10deg); }
-        .moment-item.pos-3 { bottom: 15%; left: 20%; transform: rotate(5deg); }
-        .moment-item.pos-4 { bottom: 20%; right: 10%; transform: rotate(-10deg); }
+        .moment-item.pos-1 { top: 12%; left: 8%; transform: rotate(-12deg); }
+        .moment-item.pos-2 { top: 18%; right: 12%; transform: rotate(8deg); }
+        .moment-item.pos-3 { bottom: 12%; left: 15%; transform: rotate(6deg); }
+        .moment-item.pos-4 { bottom: 18%; right: 8%; transform: rotate(-8deg); }
 
         /* =========================================
            7. МОДАЛЬНОЕ ОКНО
@@ -300,12 +414,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7); 
-            backdrop-filter: blur(8px);
+            background: rgba(5, 1, 10, 0.9); 
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000; 
+            z-index: 2000; 
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease;
@@ -317,16 +430,16 @@
         }
 
         .modal-content {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2rem;
+            background: var(--dark-surface);
+            border: 1px solid var(--neon-border-active);
+            border-radius: 20px;
+            padding: 2.5rem;
             max-width: 600px;
             width: 90%;
             text-align: center;
-            box-shadow: var(--glass-shadow);
-            transform: scale(0.9);
-            transition: transform 0.5s ease;
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+            transform: scale(0.95);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .modal-overlay.active .modal-content {
@@ -336,7 +449,8 @@
         .modal-content h2 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
 
         .modal-content img {
@@ -344,105 +458,144 @@
             height: auto;
             border-radius: 12px;
             margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .modal-content p {
             color: var(--text-muted);
-            line-height: 1.7;
+            line-height: 1.8;
             font-weight: 300;
         }
 
         .btn-close {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: transparent;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.05);
             color: var(--text-muted);
-            border: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.3s ease;
         }
         
         .btn-close:hover {
             color: var(--text-main);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--neon-border);
+            box-shadow: 0 0 15px rgba(180, 100, 255, 0.3);
+            transform: rotate(90deg);
         }
 
         /* =========================================
            8. АНИМАЦИИ
            ========================================= */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .floating-heart {
             position: absolute;
             pointer-events: none;
-            font-size: 1.5rem;
-            z-index: 10;
-            animation: floatUp 1.2s ease-out forwards;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+            font-size: 1.8rem;
+            z-index: 100;
+            animation: floatHeartUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            filter: drop-shadow(0 0 10px rgba(180, 100, 255, 0.8));
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translateY(-120px) scale(1.5) rotate(20deg); opacity: 0; }
+        @keyframes floatHeartUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-20px) scale(1) rotate(10deg); }
+            100% { transform: translateY(-150px) scale(1.5) rotate(45deg); opacity: 0; }
         }
+
     </style>
 </head>
 <body>
 
+    <!-- ==========================================
+         ГЛОБАЛЬНАЯ СТРУКТУРА ХОЛСТА
+         ========================================== -->
+    <div class="canvas-grid"></div>
+    
+    <div class="background-effects" id="bgEffects">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        
+        <!-- Контейнер для интересов (Изначально пуст, заполняется ПОСЛЕ ввода пароля) -->
+        <div id="interestLayer"></div>
+    </div>
+
+    <!-- ИНТЕРАКТИВНЫЕ СОЗВЕЗДИЯ (Только для экрана блокировки) -->
+    <canvas id="constellationCanvas"></canvas>
+
+    <div class="canvas-vignette"></div>
+
+    <svg class="canvas-noise" xmlns="http://www.w3.org/2000/svg">
+        <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+    </svg>
+
+    <!-- ==========================================
+         КОНТЕНТНАЯ ЧАСТЬ
+         ========================================== -->
+
     <!-- ЭКРАН БЛОКИРОВКИ -->
     <div id="lockScreen">
-        <div class="lock-card">
+        <div class="luxury-card">
             <div class="lock-icon">🔒</div>
-            <h2 class="lock-title">Secretly made cause I don't know how to properly express my feelings</h2>
-            <p class="lock-subtitle">Wanted to make it more interesting, so enter the password, please :)</p>
+            <h2 class="lock-title">Секрет</h2>
+            <p class="lock-subtitle">Доступ только для одного человека</p>
             
             <div class="password-container">
                 <input type="password" id="passwordInput" class="password-input" placeholder="Введите пароль">
             </div>
             
-            <button id="unlockBtn" class="btn-romantic">Dive in, darling!</button>
+            <button id="unlockBtn" class="btn-romantic">Войти</button>
         </div>
     </div>
 
-    <!-- ОСНОВНОЙ КОНТЕНТ (Скрыт до ввода пароля) -->
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div id="mainContent">
-        <div class="glass-card" id="mainCard">
-            <h1>For you</h1>
+        <div class="luxury-card" id="mainCard">
+            <h1>Для тебя</h1>
             <p class="message">
-                I'm not a romantic person. I don't know how to properly or in the right way to offer, to express or to ask, etc this type of things.
-                But after the time we've spent together, secrets, fun and sad moment's we shared - I decided to make this page.
-                Once, you said that one of your love language is "pastime".
-                So, this page dedicated to our "pastime" and I want to continue it not only as a close or best friends, but as a couple. As a future husband and wife.
-                As a independent family with pure love, respect, trust, loyalty and other important things.
+                Я долго думал, как лучше всего выразить свои чувства. Слова иногда кажутся слишком простыми, поэтому я решил написать для тебя эту страницу. Здесь нет ничего лишнего — только искренность и то, что скрыто в моем сердце.
             </p>
-            <button id="heartBtn" class="btn-romantic">Жмак</button>
+            <button id="heartBtn" class="btn-romantic">Узнать больше</button>
         </div>
 
         <div class="moment-gallery" id="momentGallery">
-            <div class="moment-item pos-1" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
+            <div class="moment-item pos-1 parallax-element" data-speed="0.02" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
                 <div class="moment-placeholder">📸 Концерт</div>
             </div>
 
-            <div class="moment-item pos-2" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
+            <div class="moment-item pos-2 parallax-element" data-speed="0.03" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
                 <div class="moment-placeholder">📸 Парк</div>
             </div>
 
-            <div class="moment-item pos-3" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
+            <div class="moment-item pos-3 parallax-element" data-speed="-0.02" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
                 <div class="moment-placeholder">📸 Вечер дома</div>
             </div>
 
-            <div class="moment-item pos-4" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
+            <div class="moment-item pos-4 parallax-element" data-speed="-0.04" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
                 <div class="moment-placeholder">📸 Коты</div>
             </div>
         </div>
 
         <div class="modal-overlay" id="modalOverlay">
-            <div class="modal-content">
+            <div class="modal-content luxury-card" style="box-shadow: 0 0 50px rgba(138,43,226,0.3);">
                 <button class="btn-close" id="modalClose">&times;</button>
                 <h2 id="modalTitle">Заголовок момента</h2>
                 <img src="" alt="" id="modalImage">
@@ -453,21 +606,123 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // === ЛОГИКА БЛОКИРОВКИ (С ХЕШИРОВАНИЕМ) ===
-            // ВАЖНО: Мы больше не храним пароль в открытом виде! 
-            // Мы храним его "математический отпечаток" (хеш). 
-            // Ваш персональный хеш установлен ниже.
+            
+            // Глобальные переменные для позиции мыши
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+
+            // Отслеживание мыши (единый обработчик для Canvas и Параллакса)
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // ==========================================
+            // АНИМАЦИЯ СОЗВЕЗДИЙ (CANVAS API)
+            // ==========================================
+            const canvas = document.getElementById('constellationCanvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const particleCount = 80; // Количество "звезд"
+            let animationFrameId;
+
+            // Настройка размера Canvas под окно
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Класс отдельной "звезды"
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.5; // Медленная скорость по X
+                    this.vy = (Math.random() - 0.5) * 0.5; // Медленная скорость по Y
+                    this.radius = Math.random() * 1.5 + 0.5;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Отскок от краев экрана
+                    if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
+                    if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.fill();
+                }
+            }
+
+            // Инициализация массива звезд
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            // Главный цикл отрисовки созвездий
+            function animateConstellations() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+
+                    // Соединяем звезды друг с другом линией, если они рядом
+                    for (let j = i; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 100) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(180, 100, 255, ${0.15 - distance/100})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+
+                    // ИНТЕРАКТИВНОСТЬ: Соединяем звезды с курсором мыши
+                    const dxMouse = particles[i].x - mouseX;
+                    const dyMouse = particles[i].y - mouseY;
+                    const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+                    if (distanceMouse < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 - distanceMouse/150})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouseX, mouseY);
+                        ctx.stroke();
+                    }
+                }
+                animationFrameId = requestAnimationFrame(animateConstellations);
+            }
+            // Запускаем анимацию созвездий
+            animateConstellations();
+
+
+            // ==========================================
+            // ЛОГИКА БЛОКИРОВКИ
+            // ==========================================
             const SECRET_HASH = "901f0c29"; 
 
-            // Математическая функция преобразования текста в нечитаемый хеш
             function generateHash(str) {
                 let hash = 0;
                 for (let i = 0; i < str.length; i++) {
                     const char = str.charCodeAt(i);
                     hash = ((hash << 5) - hash) + char;
-                    hash |= 0; // Преобразуем в 32-битное целое число
+                    hash |= 0; 
                 }
-                return (hash >>> 0).toString(16); // Делаем число положительным и переводим в 16-ричный формат
+                return (hash >>> 0).toString(16); 
             }
 
             const lockScreen = document.getElementById('lockScreen');
@@ -478,60 +733,155 @@
             const gallery = document.getElementById('momentGallery');
 
             function attemptUnlock() {
-                // Берем введенный текст
                 const inputValue = passwordInput.value.trim();
-
-                // Превращаем введенный текст в хеш
                 const inputHash = generateHash(inputValue);
 
-                // === ИНСТРУМЕНТ ДЛЯ ВАС (РАЗРАБОТЧИКА) ===
-                // Откройте консоль (F12) в браузере, чтобы скопировать новый хеш!
-                console.log(`[Настройка пароля] Вы ввели: "${inputValue}". Хеш для этого слова: "${inputHash}"`);
-
-                // Сравниваем ХЕШИ, а не сам текст
                 if (inputHash === SECRET_HASH) {
-                    // Пароль верный: прячем экран блокировки
+                    // 1. Плавно гасим созвездия
+                    canvas.style.opacity = '0';
+                    
+                    // 2. Гасим карточку блокировки
                     lockScreen.classList.add('hidden');
                     
-                    // Удаляем экран блокировки из DOM через 800мс (время окончания CSS-анимации растворения), 
-                    // чтобы он не блокировал клики на сайте
+                    // 3. Останавливаем расчеты Canvas для экономии ресурсов (уборка мусора)
+                    setTimeout(() => cancelAnimationFrame(animationFrameId), 1500);
+
+                    // 4. Показываем основной контент и ГЕНЕРИРУЕМ ИНТЕРЕСЫ
                     setTimeout(() => {
                         lockScreen.style.display = 'none';
-                        
-                        // Показываем основной контент (Flex-контейнер)
                         mainContent.style.display = 'flex';
                         
-                        // Запускаем анимации появления карточки и галереи
+                        // Запускаем генерацию личных паттернов только сейчас!
+                        generateInterests();
+                        
                         setTimeout(() => {
                             mainCard.classList.add('animate-in');
                             gallery.classList.add('show');
-                        }, 50); // Небольшая задержка для корректного срабатывания CSS-переходов
-                        
+                        }, 50); 
                     }, 800); 
 
                 } else {
-                    // Пароль неверный: запускаем анимацию ошибки
                     passwordInput.classList.add('error');
-                    
-                    // Снимаем класс ошибки через 400мс, чтобы можно было запустить анимацию снова при повторной ошибке
                     setTimeout(() => {
                         passwordInput.classList.remove('error');
+                        passwordInput.value = ''; 
                     }, 400);
                 }
             }
 
-            // Проверка пароля по клику на кнопку
             unlockBtn.addEventListener('click', attemptUnlock);
-
-            // Проверка пароля по нажатию клавиши Enter в поле ввода
             passwordInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    attemptUnlock();
-                }
+                if (e.key === 'Enter') attemptUnlock();
             });
 
+            // ==========================================
+            // ГЕНЕРАЦИЯ ЛИЧНОЙ ВСЕЛЕННОЙ (Интересы)
+            // ==========================================
+            
+            const baseInterests = [
+                '🎲', '🐉', '🏰', // DnD
+                '📚', '📖', '🔖', // Книги
+                '🔥', '🕷️', '🌲', // DST
+                '⚔️', '🛡️', '🐲', // Skyrim
+                '🐑', '👑', '🔮', // Cult of the Lamb
+                '💀', '🧬', '🍳', // Dead Cells
+                '🖋️', '✒️', '✍️', // Каллиграфия
+                '🎨', '🖌️', '🖼️'  // Картины
+            ];
+            
+            const interests = [...baseInterests, ...baseInterests];
+            
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
 
-            // === ОСТАЛЬНАЯ ЛОГИКА (Сайт) ===
+            function generateInterests() {
+                const layer = document.getElementById('interestLayer');
+                const shuffledInterests = shuffle([...interests]);
+
+                shuffledInterests.forEach((iconChar, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('interest-wrapper');
+                    
+                    // Ступенчатая задержка анимации, чтобы иконки появлялись одна за другой
+                    wrapper.style.animationDelay = `${index * 0.05}s`;
+                    
+                    const icon = document.createElement('div');
+                    icon.classList.add('interest-icon');
+                    icon.textContent = iconChar;
+                    
+                    wrapper.style.left = `${Math.random() * 95}vw`;
+                    wrapper.style.top = `${Math.random() * 95}vh`;
+                    
+                    const depth = 0.2 + Math.random() * 1.3;
+                    wrapper.setAttribute('data-depth', depth);
+                    
+                    icon.style.fontSize = `${1.5 + depth * 1.5}rem`;
+                    
+                    // Устанавливаем целевую прозрачность, к которой элемент придет после анимации
+                    icon.style.opacity = `${0.05 + depth * 0.08}`;
+                    
+                    wrapper.appendChild(icon);
+                    layer.appendChild(wrapper);
+                });
+                
+                // Пересобираем NodeList для параллакса, так как элементы только что созданы
+                interestWrappers = document.querySelectorAll('.interest-wrapper');
+            }
+
+            // ==========================================
+            // ИНДИВИДУАЛЬНЫЙ 3D-ПАРАЛЛАКС И РАЗЛЕТАНИЕ
+            // ==========================================
+            const parallaxItems = document.querySelectorAll('.parallax-element');
+            const bgContainer = document.getElementById('bgEffects');
+            let interestWrappers = []; // Изначально пуст, заполнится после пароля
+
+            document.addEventListener('mousemove', (e) => {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                
+                const moveX = (mouseX - centerX) / centerX;
+                const moveY = (mouseY - centerY) / centerY;
+
+                // 1. Двигаем иконки интересов с эффектом отталкивания
+                interestWrappers.forEach(wrapper => {
+                    const depth = parseFloat(wrapper.getAttribute('data-depth'));
+                    
+                    let transX = moveX * depth * -60;
+                    let transY = moveY * depth * -60;
+
+                    const rect = wrapper.getBoundingClientRect();
+                    const iconX = rect.left + rect.width / 2;
+                    const iconY = rect.top + rect.height / 2;
+                    
+                    const distX = iconX - mouseX;
+                    const distY = iconY - mouseY;
+                    const distance = Math.sqrt(distX * distX + distY * distY);
+                    
+                    if (distance < 120) {
+                        const force = (120 - distance) / 120; 
+                        transX += (distX / distance) * force * 50; 
+                        transY += (distY / distance) * force * 50; 
+                    }
+
+                    wrapper.style.transform = `translate(${transX}px, ${transY}px)`;
+                });
+
+                // 2. Двигаем скриншоты в галерее для создания стереоэффекта
+                parallaxItems.forEach(item => {
+                    const speed = parseFloat(item.getAttribute('data-speed'));
+                    const currentTransform = window.getComputedStyle(item).transform;
+                    item.style.transform = `translate(${moveX * speed * 1000}px, ${moveY * speed * 1000}px) ${currentTransform !== 'none' ? currentTransform : ''}`;
+                });
+            });
+
+            // ==========================================
+            // ИНТЕРАКТИВ И МОДАЛЬНОЕ ОКНО
+            // ==========================================
             const btn = document.getElementById('heartBtn');
             const hearts = ['🤍', '✨', '💜', '🌸', '💕'];
             
@@ -551,6 +901,10 @@
                     modalDetails.textContent = item.getAttribute('data-details');
                     overlay.classList.add('active');
                 });
+                
+                item.addEventListener('mouseenter', () => {
+                    item.style.transition = 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                });
             });
 
             function closeModal() {
@@ -564,7 +918,7 @@
 
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const amount = 8;
+                const amount = 10;
                 for (let i = 0; i < amount; i++) {
                     createHeart(e.clientX, e.clientY);
                 }
@@ -574,12 +928,12 @@
                 const heart = document.createElement('div');
                 heart.classList.add('floating-heart');
                 heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-                const offsetX = (Math.random() - 0.5) * 80;
-                const offsetY = (Math.random() - 0.5) * 40;
+                const offsetX = (Math.random() - 0.5) * 100;
+                const offsetY = (Math.random() - 0.5) * 50;
                 heart.style.left = (x + offsetX) + 'px';
                 heart.style.top = (y + offsetY) + 'px';
                 document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 1200);
+                setTimeout(() => heart.remove(), 1500);
             }
         });
     </script>
