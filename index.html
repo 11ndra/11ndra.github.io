@@ -123,7 +123,6 @@
             position: absolute;
             transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
             z-index: 1;
-            /* Важное добавление: Изначально иконки прозрачные. Они проявятся только после пароля */
             opacity: 0;
             animation: fadeInInterest 2s ease forwards;
         }
@@ -134,8 +133,6 @@
 
         .interest-icon {
             font-size: 2.5rem;
-            /* Базовая прозрачность задается через JS (opacity: 0.05 - 0.15),
-               поэтому здесь мы её не жестко фиксируем */
             filter: blur(1px); 
             mix-blend-mode: screen; 
             animation: drift 20s infinite linear;
@@ -156,9 +153,9 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 5; /* Находится под карточкой пароля, но над сеткой */
-            transition: opacity 1.5s ease-out; /* Плавное исчезновение при вводе пароля */
-            pointer-events: none; /* Чтобы клики проходили сквозь него к карточке */
+            z-index: 5; 
+            transition: opacity 1.5s ease-out; 
+            pointer-events: none; 
         }
 
         /* =========================================
@@ -332,7 +329,7 @@
         }
 
         /* =========================================
-           6. ГАЛЕРЕЯ МОМЕНТОВ
+           6. ГАЛЕРЕЯ МОМЕНТОВ (Переработана логика трансформаций)
            ========================================= */
         .moment-gallery {
             position: fixed;
@@ -367,10 +364,22 @@
             border-radius: 14px;
             padding: 8px; 
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* Убрана жесткая привязка к transform в transition, чтобы не конфликтовать с JS */
+            transition: box-shadow 0.4s ease, border-color 0.4s ease, opacity 0.4s ease;
             opacity: 0.5; 
             box-shadow: var(--neon-glow);
             will-change: transform;
+            
+            /* НОВАЯ АРХИТЕКТУРА ИЗОЛИРОВАННЫХ ТРАНСФОРМАЦИЙ 
+               Это решает баг "снежного кома". Мы разделяем базовый поворот, 
+               увеличение при наведении и параллакс в разные переменные. */
+            --p-x: 0px;   /* Параллакс X (меняется JS) */
+            --p-y: 0px;   /* Параллакс Y (меняется JS) */
+            --h-y: 0px;   /* Подскок вверх при наведении (меняется CSS) */
+            --h-s: 1;     /* Масштаб при наведении (меняется CSS) */
+            --rot: 0deg;  /* Базовый поворот (задается ниже для каждого угла) */
+            
+            transform: translate(var(--p-x), calc(var(--p-y) + var(--h-y))) scale(var(--h-s)) rotate(var(--rot));
         }
 
         .moment-item:hover {
@@ -378,6 +387,10 @@
             box-shadow: var(--neon-glow-hover);
             border-color: var(--neon-border-active);
             z-index: 30; 
+            
+            /* Управляем наведением только через переменные, не трогая параллакс */
+            --h-y: -10px;
+            --h-s: 1.1;
         }
 
         .moment-item img {
@@ -400,10 +413,11 @@
             border: 1px dashed rgba(255,255,255,0.1);
         }
 
-        .moment-item.pos-1 { top: 12%; left: 8%; transform: rotate(-12deg); }
-        .moment-item.pos-2 { top: 18%; right: 12%; transform: rotate(8deg); }
-        .moment-item.pos-3 { bottom: 12%; left: 15%; transform: rotate(6deg); }
-        .moment-item.pos-4 { bottom: 18%; right: 8%; transform: rotate(-8deg); }
+        /* Задаем только переменную поворота вместо жесткого transform */
+        .moment-item.pos-1 { top: 12%; left: 8%; --rot: -12deg; }
+        .moment-item.pos-2 { top: 18%; right: 12%; --rot: 8deg; }
+        .moment-item.pos-3 { bottom: 12%; left: 15%; --rot: 6deg; }
+        .moment-item.pos-4 { bottom: 18%; right: 8%; --rot: -8deg; }
 
         /* =========================================
            7. МОДАЛЬНОЕ ОКНО
@@ -531,11 +545,11 @@
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
         
-        <!-- Контейнер для интересов (Изначально пуст, заполняется ПОСЛЕ ввода пароля) -->
+        <!-- Контейнер для интересов -->
         <div id="interestLayer"></div>
     </div>
 
-    <!-- ИНТЕРАКТИВНЫЕ СОЗВЕЗДИЯ (Только для экрана блокировки) -->
+    <!-- ИНТЕРАКТИВНЫЕ СОЗВЕЗДИЯ -->
     <canvas id="constellationCanvas"></canvas>
 
     <div class="canvas-vignette"></div>
@@ -577,19 +591,20 @@
         </div>
 
         <div class="moment-gallery" id="momentGallery">
-            <div class="moment-item pos-1 parallax-element" data-speed="0.02" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
+            <!-- Обратите внимание, скорость теперь целое число (максимальное количество пикселей отклонения) -->
+            <div class="moment-item pos-1 parallax-element" data-speed="25" data-title="Наш первый концерт" data-details="Это было так шумно, но так весело! Твой смех заглушал даже музыку. Я никогда не забуду тот вечер, когда ты держала меня за руку.">
                 <div class="moment-placeholder">📸 Концерт</div>
             </div>
 
-            <div class="moment-item pos-2 parallax-element" data-speed="0.03" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
+            <div class="moment-item pos-2 parallax-element" data-speed="35" data-title="Прогулка в парке" data-details="Тот день, когда мы просто гуляли и говорили обо всём на свете. Мы тогда купили то мороженое, помнишь?">
                 <div class="moment-placeholder">📸 Парк</div>
             </div>
 
-            <div class="moment-item pos-3 parallax-element" data-speed="-0.02" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
+            <div class="moment-item pos-3 parallax-element" data-speed="-25" data-title="Домашний уют" data-details="Я люблю наши тихие вечера. Когда мы просто смотрим фильмы, и мир вокруг замирает. Это мои любимые моменты.">
                 <div class="moment-placeholder">📸 Вечер дома</div>
             </div>
 
-            <div class="moment-item pos-4 parallax-element" data-speed="-0.04" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
+            <div class="moment-item pos-4 parallax-element" data-speed="-40" data-title="Наши коты" data-details="Они так сильно тебя любят (но меня, конечно, немного больше 😉). Я рад, что мы делим это пространство с ними.">
                 <div class="moment-placeholder">📸 Коты</div>
             </div>
         </div>
@@ -607,11 +622,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // Глобальные переменные для позиции мыши
             let mouseX = window.innerWidth / 2;
             let mouseY = window.innerHeight / 2;
 
-            // Отслеживание мыши (единый обработчик для Canvas и Параллакса)
             document.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
@@ -623,10 +636,9 @@
             const canvas = document.getElementById('constellationCanvas');
             const ctx = canvas.getContext('2d');
             let particles = [];
-            const particleCount = 80; // Количество "звезд"
+            const particleCount = 80; 
             let animationFrameId;
 
-            // Настройка размера Canvas под окно
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
@@ -634,13 +646,12 @@
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
 
-            // Класс отдельной "звезды"
             class Particle {
                 constructor() {
                     this.x = Math.random() * canvas.width;
                     this.y = Math.random() * canvas.height;
-                    this.vx = (Math.random() - 0.5) * 0.5; // Медленная скорость по X
-                    this.vy = (Math.random() - 0.5) * 0.5; // Медленная скорость по Y
+                    this.vx = (Math.random() - 0.5) * 0.5; 
+                    this.vy = (Math.random() - 0.5) * 0.5; 
                     this.radius = Math.random() * 1.5 + 0.5;
                 }
 
@@ -648,7 +659,6 @@
                     this.x += this.vx;
                     this.y += this.vy;
 
-                    // Отскок от краев экрана
                     if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
                     if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
                 }
@@ -661,12 +671,10 @@
                 }
             }
 
-            // Инициализация массива звезд
             for (let i = 0; i < particleCount; i++) {
                 particles.push(new Particle());
             }
 
-            // Главный цикл отрисовки созвездий
             function animateConstellations() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -674,7 +682,6 @@
                     particles[i].update();
                     particles[i].draw();
 
-                    // Соединяем звезды друг с другом линией, если они рядом
                     for (let j = i; j < particles.length; j++) {
                         const dx = particles[i].x - particles[j].x;
                         const dy = particles[i].y - particles[j].y;
@@ -690,7 +697,6 @@
                         }
                     }
 
-                    // ИНТЕРАКТИВНОСТЬ: Соединяем звезды с курсором мыши
                     const dxMouse = particles[i].x - mouseX;
                     const dyMouse = particles[i].y - mouseY;
                     const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
@@ -706,9 +712,7 @@
                 }
                 animationFrameId = requestAnimationFrame(animateConstellations);
             }
-            // Запускаем анимацию созвездий
             animateConstellations();
-
 
             // ==========================================
             // ЛОГИКА БЛОКИРОВКИ
@@ -737,21 +741,15 @@
                 const inputHash = generateHash(inputValue);
 
                 if (inputHash === SECRET_HASH) {
-                    // 1. Плавно гасим созвездия
                     canvas.style.opacity = '0';
-                    
-                    // 2. Гасим карточку блокировки
                     lockScreen.classList.add('hidden');
                     
-                    // 3. Останавливаем расчеты Canvas для экономии ресурсов (уборка мусора)
                     setTimeout(() => cancelAnimationFrame(animationFrameId), 1500);
 
-                    // 4. Показываем основной контент и ГЕНЕРИРУЕМ ИНТЕРЕСЫ
                     setTimeout(() => {
                         lockScreen.style.display = 'none';
                         mainContent.style.display = 'flex';
                         
-                        // Запускаем генерацию личных паттернов только сейчас!
                         generateInterests();
                         
                         setTimeout(() => {
@@ -807,7 +805,6 @@
                     const wrapper = document.createElement('div');
                     wrapper.classList.add('interest-wrapper');
                     
-                    // Ступенчатая задержка анимации, чтобы иконки появлялись одна за другой
                     wrapper.style.animationDelay = `${index * 0.05}s`;
                     
                     const icon = document.createElement('div');
@@ -821,15 +818,12 @@
                     wrapper.setAttribute('data-depth', depth);
                     
                     icon.style.fontSize = `${1.5 + depth * 1.5}rem`;
-                    
-                    // Устанавливаем целевую прозрачность, к которой элемент придет после анимации
                     icon.style.opacity = `${0.05 + depth * 0.08}`;
                     
                     wrapper.appendChild(icon);
                     layer.appendChild(wrapper);
                 });
                 
-                // Пересобираем NodeList для параллакса, так как элементы только что созданы
                 interestWrappers = document.querySelectorAll('.interest-wrapper');
             }
 
@@ -838,7 +832,7 @@
             // ==========================================
             const parallaxItems = document.querySelectorAll('.parallax-element');
             const bgContainer = document.getElementById('bgEffects');
-            let interestWrappers = []; // Изначально пуст, заполнится после пароля
+            let interestWrappers = []; 
 
             document.addEventListener('mousemove', (e) => {
                 const centerX = window.innerWidth / 2;
@@ -847,7 +841,7 @@
                 const moveX = (mouseX - centerX) / centerX;
                 const moveY = (mouseY - centerY) / centerY;
 
-                // 1. Двигаем иконки интересов с эффектом отталкивания
+                // 1. Отталкивание иконок интересов
                 interestWrappers.forEach(wrapper => {
                     const depth = parseFloat(wrapper.getAttribute('data-depth'));
                     
@@ -871,11 +865,13 @@
                     wrapper.style.transform = `translate(${transX}px, ${transY}px)`;
                 });
 
-                // 2. Двигаем скриншоты в галерее для создания стереоэффекта
+                // 2. Двигаем скриншоты в галерее (Теперь логика безопасная и плавная, без накопления)
                 parallaxItems.forEach(item => {
-                    const speed = parseFloat(item.getAttribute('data-speed'));
-                    const currentTransform = window.getComputedStyle(item).transform;
-                    item.style.transform = `translate(${moveX * speed * 1000}px, ${moveY * speed * 1000}px) ${currentTransform !== 'none' ? currentTransform : ''}`;
+                    const speed = parseFloat(item.getAttribute('data-speed')); // Например: 30 пикселей максимум
+                    
+                    // Обновляем CSS-переменные напрямую, не трогая базовый поворот элемента
+                    item.style.setProperty('--p-x', `${moveX * speed}px`);
+                    item.style.setProperty('--p-y', `${moveY * speed}px`);
                 });
             });
 
@@ -900,10 +896,6 @@
                     modalTitle.textContent = item.getAttribute('data-title');
                     modalDetails.textContent = item.getAttribute('data-details');
                     overlay.classList.add('active');
-                });
-                
-                item.addEventListener('mouseenter', () => {
-                    item.style.transition = 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 });
             });
 
