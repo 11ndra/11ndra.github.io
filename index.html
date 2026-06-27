@@ -202,7 +202,7 @@
 
         .lock-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem; /* Чуть уменьшен размер для английского текста */
+            font-size: 1.8rem; 
             margin-bottom: 0.5rem;
             letter-spacing: 0.02em;
             line-height: 1.3;
@@ -274,8 +274,9 @@
         }
 
         #mainCard {
-            max-width: 580px; /* Немного расширил карточку под английский текст */
-            z-index: 20;
+            max-width: 580px;
+            /* ИСПРАВЛЕНИЕ: Опускаем карточку на уровень 10, чтобы галерея могла быть выше */
+            z-index: 10; 
             opacity: 0;
         }
 
@@ -296,7 +297,7 @@
             font-size: 1.05rem;
             line-height: 1.8;
             color: var(--text-muted);
-            margin-bottom: 1.2rem; /* Сделал отступы между абзацами */
+            margin-bottom: 1.2rem; 
             font-weight: 300;
         }
 
@@ -317,6 +318,9 @@
             width: 100%;
             box-shadow: 0 0 10px rgba(138, 43, 226, 0.1);
             margin-top: 1.5rem;
+            /* Защита, чтобы кнопка всегда ловила клики */
+            position: relative;
+            z-index: 50; 
         }
 
         .btn-romantic:hover {
@@ -346,8 +350,10 @@
             align-items: center;
             padding: 50px;
             gap: 20px;
-            z-index: 10; 
+            /* ИСПРАВЛЕНИЕ: Поднимаем галерею на уровень 20, НАД текстовой карточкой */
+            z-index: 20; 
             opacity: 0; 
+            /* ИСПРАВЛЕНИЕ: Галерея в целом прозрачна для кликов */
             pointer-events: none; 
             transition: opacity 1.5s ease;
         }
@@ -356,7 +362,9 @@
             opacity: 0.9;
         }
 
-        .moment-gallery.active {
+        /* ИСПРАВЛЕНИЕ: Разрешаем кликать ТОЛЬКО по самим карточкам, 
+           чтобы пустое пространство пропускало клик к тексту и кнопке внизу */
+        .moment-gallery.active .moment-item {
             pointer-events: auto;
         }
 
@@ -392,18 +400,15 @@
         }
 
         .moment-item img {
-            /* НОВАЯ ЛОГИКА: Жестко фиксируем размер миниатюр */
             width: 150px;
             height: 150px;
-            /* МАГИЯ: Заполняет квадрат без сплющивания (обрезает края) */
             object-fit: cover;
-            /* Слегка смягчаем углы самой картинки */
             border-radius: 8px;
             display: block;
+            pointer-events: none; /* Чтобы картинка не мешала клику по карточке */
         }
         
         .moment-placeholder {
-            /* Синхронизируем размер заглушек с новыми картинками */
             width: 150px;
             height: 150px;
             background: rgba(0, 0, 0, 0.5); 
@@ -414,9 +419,16 @@
             color: var(--text-muted);
             font-size: 0.85rem;
             border: 1px dashed rgba(255,255,255,0.1);
+            pointer-events: none;
         }
 
         /* Задаем позиционирование и поворот для каждой карточки */
+        .moment-item.pos-1 { top: 12%; left: 8%; --rot: -12deg; }
+        .moment-item.pos-2 { top: 18%; right: 12%; --rot: 8deg; }
+        .moment-item.pos-3 { bottom: 12%; left: 15%; --rot: 6deg; }
+        .moment-item.pos-4 { bottom: 18%; right: 8%; --rot: -8deg; }
+        .moment-item.pos-5 { top: 45%; right: 6%; --rot: 14deg; }
+        .moment-item.pos-6 { top: 35%; left: 8%; --rot: -10deg; }
 
         /* =========================================
            7. МОДАЛЬНОЕ ОКНО
@@ -597,7 +609,6 @@
 
         <div class="moment-gallery" id="momentGallery">
             <div class="moment-item pos-1 parallax-element" data-speed="25" data-title="Facetime calls" data-details="So, we started from 3-4 hours. Discussed something, played Don't Starve Together, even fell asleep during the phone calls.">
-                <!-- Заменяем placeholder на тег img. Убедитесь, что файл называется именно calls.jpg -->
                 <img src="calls.jpg" alt="Facetime calls">
             </div>
 
@@ -615,6 +626,10 @@
             
             <div class="moment-item pos-5 parallax-element" data-speed="-30" data-title="Civ6" data-details="How many places can we conquer together!">
                 <img src="civ6.jpg" alt="Civ6">
+            </div>
+
+            <div class="moment-item pos-6 parallax-element" data-speed="20" data-title="Painting by numbers" data-details="I know how much you enjoy this process. Let's create our own masterpiece together.">
+                <img src="painting.jpg" alt="Painting">
             </div>
         </div>
 
@@ -789,165 +804,4 @@
                 '🎲', '🐉', '🏰', // DnD
                 '📚', '📖', '🔖', // Книги
                 '🔥', '🕷️', '🌲', // DST
-                '⚔️', '🛡️', '🐲', // Skyrim
-                '🐑', '👑', '🔮', // Cult of the Lamb
-                '💀', '🧬', '🍳', // Dead Cells
-                '🖋️', '✒️', '✍️', // Каллиграфия
-                '🎨', '🖌️', '🖼️'  // Картины
-            ];
-            
-            const interests = [...baseInterests, ...baseInterests];
-            
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-
-            function generateInterests() {
-                const layer = document.getElementById('interestLayer');
-                const shuffledInterests = shuffle([...interests]);
-
-                shuffledInterests.forEach((iconChar, index) => {
-                    const wrapper = document.createElement('div');
-                    wrapper.classList.add('interest-wrapper');
-                    
-                    wrapper.style.animationDelay = `${index * 0.05}s`;
-                    
-                    const icon = document.createElement('div');
-                    icon.classList.add('interest-icon');
-                    icon.textContent = iconChar;
-                    
-                    wrapper.style.left = `${Math.random() * 95}vw`;
-                    wrapper.style.top = `${Math.random() * 95}vh`;
-                    
-                    const depth = 0.2 + Math.random() * 1.3;
-                    wrapper.setAttribute('data-depth', depth);
-                    
-                    icon.style.fontSize = `${1.5 + depth * 1.5}rem`;
-                    icon.style.opacity = `${0.05 + depth * 0.08}`;
-                    
-                    wrapper.appendChild(icon);
-                    layer.appendChild(wrapper);
-                });
-                
-                interestWrappers = document.querySelectorAll('.interest-wrapper');
-            }
-
-            // ==========================================
-            // ИНДИВИДУАЛЬНЫЙ 3D-ПАРАЛЛАКС И РАЗЛЕТАНИЕ
-            // ==========================================
-            const parallaxItems = document.querySelectorAll('.parallax-element');
-            const bgContainer = document.getElementById('bgEffects');
-            let interestWrappers = []; 
-
-            document.addEventListener('mousemove', (e) => {
-                const centerX = window.innerWidth / 2;
-                const centerY = window.innerHeight / 2;
-                
-                const moveX = (mouseX - centerX) / centerX;
-                const moveY = (mouseY - centerY) / centerY;
-
-                // 1. Отталкивание иконок интересов
-                interestWrappers.forEach(wrapper => {
-                    const depth = parseFloat(wrapper.getAttribute('data-depth'));
-                    
-                    let transX = moveX * depth * -60;
-                    let transY = moveY * depth * -60;
-
-                    const rect = wrapper.getBoundingClientRect();
-                    const iconX = rect.left + rect.width / 2;
-                    const iconY = rect.top + rect.height / 2;
-                    
-                    const distX = iconX - mouseX;
-                    const distY = iconY - mouseY;
-                    const distance = Math.sqrt(distX * distX + distY * distY);
-                    
-                    if (distance < 120) {
-                        const force = (120 - distance) / 120; 
-                        transX += (distX / distance) * force * 50; 
-                        transY += (distY / distance) * force * 50; 
-                    }
-
-                    wrapper.style.transform = `translate(${transX}px, ${transY}px)`;
-                });
-
-                // 2. Двигаем скриншоты в галерее
-                parallaxItems.forEach(item => {
-                    const speed = parseFloat(item.getAttribute('data-speed')); 
-                    item.style.setProperty('--p-x', `${moveX * speed}px`);
-                    item.style.setProperty('--p-y', `${moveY * speed}px`);
-                });
-            });
-
-            // ==========================================
-            // ИНТЕРАКТИВ И МОДАЛЬНОЕ ОКНО
-            // ==========================================
-            const btn = document.getElementById('heartBtn');
-            const hearts = ['🤍', '✨', '💜', '🌸', '💕'];
-            
-            const overlay = document.getElementById('modalOverlay');
-            const closeBtn = document.getElementById('modalClose');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDetails = document.getElementById('modalDetails');
-            const modalImage = document.getElementById('modalImage'); // НОВАЯ ПЕРЕМЕННАЯ: Находим картинку в модальном окне
-            const momentItems = document.querySelectorAll('.moment-item');
-
-            mainCard.addEventListener('mouseenter', () => {
-                gallery.classList.add('active');
-            });
-            
-            momentItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    modalTitle.textContent = item.getAttribute('data-title');
-                    modalDetails.textContent = item.getAttribute('data-details');
-                    
-                    // НОВАЯ ЛОГИКА: Ищем картинку внутри карточки, по которой кликнули
-                    const imgElement = item.querySelector('img');
-                    if (imgElement) {
-                        // Передаем путь к картинке в модальное окно
-                        modalImage.src = imgElement.src;
-                        modalImage.style.display = 'block';
-                    } else {
-                        // Скрываем картинку в модалке, если её нет (например, если файл не загрузился)
-                        modalImage.style.display = 'none';
-                    }
-
-                    overlay.classList.add('active');
-                });
-            });
-
-            function closeModal() {
-                overlay.classList.remove('active');
-            }
-
-            closeBtn.addEventListener('click', closeModal);
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeModal();
-            });
-
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const amount = 10;
-                for (let i = 0; i < amount; i++) {
-                    createHeart(e.clientX, e.clientY);
-                }
-            });
-
-            function createHeart(x, y) {
-                const heart = document.createElement('div');
-                heart.classList.add('floating-heart');
-                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-                const offsetX = (Math.random() - 0.5) * 100;
-                const offsetY = (Math.random() - 0.5) * 50;
-                heart.style.left = (x + offsetX) + 'px';
-                heart.style.top = (y + offsetY) + 'px';
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 1500);
-            }
-        });
-    </script>
-</body>
-</html>
+                '⚔️', '
