@@ -392,15 +392,20 @@
         }
 
         .moment-item img {
-            width: 100%;
-            height: auto;
+            /* НОВАЯ ЛОГИКА: Жестко фиксируем размер миниатюр */
+            width: 150px;
+            height: 150px;
+            /* МАГИЯ: Заполняет квадрат без сплющивания (обрезает края) */
+            object-fit: cover;
+            /* Слегка смягчаем углы самой картинки */
             border-radius: 8px;
             display: block;
         }
         
         .moment-placeholder {
-            width: 130px;
-            height: 130px;
+            /* Синхронизируем размер заглушек с новыми картинками */
+            width: 150px;
+            height: 150px;
             background: rgba(0, 0, 0, 0.5); 
             border-radius: 8px;
             display: flex;
@@ -411,12 +416,7 @@
             border: 1px dashed rgba(255,255,255,0.1);
         }
 
-        /* Задаем позиционирование и поворот для 5 карточек (Сбалансированная композиция) */
-        .moment-item.pos-1 { top: 15%; left: 8%; --rot: -12deg; }
-        .moment-item.pos-2 { top: 12%; right: 15%; --rot: 8deg; }
-        .moment-item.pos-3 { bottom: 15%; left: 25%; --rot: 6deg; }
-        .moment-item.pos-4 { bottom: 20%; right: 10%; --rot: -8deg; }
-        .moment-item.pos-5 { top: 45%; left: 5%; --rot: 10deg; } /* Перенесли 5-ю карточку в левую часть экрана для идеального баланса */
+        /* Задаем позиционирование и поворот для каждой карточки */
 
         /* =========================================
            7. МОДАЛЬНОЕ ОКНО
