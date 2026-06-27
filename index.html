@@ -159,7 +159,7 @@
         }
 
         /* =========================================
-           4. ЭКРАН БЛОКИРОВКИ (Lock Screen)
+           4. ЭКРАН БЛОКИРОВКИ И LUXURY КАРТОЧКИ
            ========================================= */
         #lockScreen {
             position: fixed;
@@ -189,9 +189,37 @@
             width: 100%;
             text-align: center;
             box-shadow: var(--neon-glow);
+            
+            /* НОВОВВЕДЕНИЕ: Подготовка к 3D-наклону и Spotlight */
             position: relative;
-            transition: box-shadow 0.4s ease, border-color 0.4s ease;
             z-index: 10;
+            overflow: hidden; /* Важно, чтобы свечение не выходило за рамки карточки */
+            transform-style: preserve-3d;
+            /* Плавное возвращение карточки в исходное положение, когда мышь уходит */
+            transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* НОВОВВЕДЕНИЕ: Эффект магнитного свечения внутри карточки */
+        .luxury-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* Радиальный градиент, координаты которого будут меняться через JS */
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(180, 100, 255, 0.08), transparent 40%);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .luxury-card:hover::before {
+            opacity: 1; /* Свечение появляется только при наведении */
+        }
+
+        /* Поднимаем весь контент карточки над слоем свечения */
+        .luxury-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .lock-icon {
@@ -271,17 +299,46 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
+            /* Добавляем перспективу контейнеру, чтобы 3D-наклон карточки работал корректно */
+            perspective: 1200px;
         }
 
         #mainCard {
             max-width: 580px;
-            /* ИСПРАВЛЕНИЕ: Опускаем карточку на уровень 10, чтобы галерея могла быть выше */
             z-index: 10; 
             opacity: 0;
+            /* Базовое состояние для трансформаций */
+            transform: scale(0.98) rotateX(0) rotateY(0);
         }
 
         #mainCard.animate-in {
             animation: fadeInScale 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* НОВОВВЕДЕНИЕ: Классы для каскадного проявления текста */
+        .reveal-text {
+            opacity: 0; /* Скрыт по умолчанию */
+            transform: translateY(15px);
+        }
+
+        #mainCard.animate-in .reveal-text {
+            animation: textCascade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        /* Устанавливаем задержки для каждого следующего элемента */
+        #mainCard .reveal-text:nth-child(1) { animation-delay: 0.2s; }
+        #mainCard .reveal-text:nth-child(2) { animation-delay: 0.4s; }
+        #mainCard .reveal-text:nth-child(3) { animation-delay: 0.6s; }
+        #mainCard .reveal-text:nth-child(4) { animation-delay: 0.8s; }
+        #mainCard .reveal-text:nth-child(5) { animation-delay: 1.0s; } /* Кнопка */
+
+        @keyframes textCascade {
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
@@ -318,7 +375,6 @@
             width: 100%;
             box-shadow: 0 0 10px rgba(138, 43, 226, 0.1);
             margin-top: 1.5rem;
-            /* Защита, чтобы кнопка всегда ловила клики */
             position: relative;
             z-index: 50; 
         }
@@ -350,10 +406,8 @@
             align-items: center;
             padding: 50px;
             gap: 20px;
-            /* ИСПРАВЛЕНИЕ: Поднимаем галерею на уровень 20, НАД текстовой карточкой */
             z-index: 20; 
             opacity: 0; 
-            /* ИСПРАВЛЕНИЕ: Галерея в целом прозрачна для кликов */
             pointer-events: none; 
             transition: opacity 1.5s ease;
         }
@@ -362,8 +416,6 @@
             opacity: 0.9;
         }
 
-        /* ИСПРАВЛЕНИЕ: Разрешаем кликать ТОЛЬКО по самим карточкам, 
-           чтобы пустое пространство пропускало клик к тексту и кнопке внизу */
         .moment-gallery.active .moment-item {
             pointer-events: auto;
         }
@@ -405,7 +457,7 @@
             object-fit: cover;
             border-radius: 8px;
             display: block;
-            pointer-events: none; /* Чтобы картинка не мешала клику по карточке */
+            pointer-events: none; 
         }
         
         .moment-placeholder {
@@ -422,7 +474,6 @@
             pointer-events: none;
         }
 
-        /* Задаем позиционирование и поворот для каждой карточки */
         .moment-item.pos-1 { top: 12%; left: 8%; --rot: -12deg; }
         .moment-item.pos-2 { top: 18%; right: 12%; --rot: 8deg; }
         .moment-item.pos-3 { bottom: 12%; left: 15%; --rot: 6deg; }
@@ -518,29 +569,6 @@
             transform: rotate(90deg);
         }
 
-        /* =========================================
-           8. АНИМАЦИИ
-           ========================================= */
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: translateY(20px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .floating-heart {
-            position: absolute;
-            pointer-events: none;
-            font-size: 1.8rem;
-            z-index: 100;
-            animation: floatHeartUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-            filter: drop-shadow(0 0 10px rgba(180, 100, 255, 0.8));
-        }
-
-        @keyframes floatHeartUp {
-            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
-            20% { opacity: 1; transform: translateY(-20px) scale(1) rotate(10deg); }
-            100% { transform: translateY(-150px) scale(1.5) rotate(45deg); opacity: 0; }
-        }
-
     </style>
 </head>
 <body>
@@ -577,7 +605,7 @@
 
     <!-- ЭКРАН БЛОКИРОВКИ -->
     <div id="lockScreen">
-        <div class="luxury-card">
+        <div class="luxury-card tilt-card">
             <div class="lock-icon">🔒</div>
             <h2 class="lock-title">I'm not a romantic person, so I've decided to dedicate this little website to you</h2>
             <p class="lock-subtitle">I could do it in a simpler way, but...</p>
@@ -592,18 +620,20 @@
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div id="mainContent">
-        <div class="luxury-card" id="mainCard">
-            <h1>So, let the fun begin</h1>
-            <p class="message">
+        <!-- Добавлен класс tilt-card для 3D наклона -->
+        <div class="luxury-card tilt-card" id="mainCard">
+            <!-- Добавлены классы reveal-text для каскадного появления -->
+            <h1 class="reveal-text">So, let the fun begin</h1>
+            <p class="message reveal-text">
                 I don't know how to do it properly or in a romantic way. So, I thought maybe this is the most "geek" way to express not only my feelings to you, but also to offer you to form a bond.
             </p>
-            <p class="message">
+            <p class="message reveal-text">
                 Once you've said that one of your love languages is "quality time". But with this I want to remind you that we've shared so much together: secrets, sad, fun, and happy moments; we cried, we laughed, we did so many things together.
             </p>
-            <p class="message">
+            <p class="message reveal-text">
                 In this little website, I tried to collect a few memorable screenshots. And I want us to continue not only as best friends, but as a couple and (I believe) a future family.
             </p>
-            <button id="heartBtn" class="btn-romantic">Fun button btw</button>
+            <button id="heartBtn" class="btn-romantic reveal-text">Fun button btw</button>
         </div>
 
         <div class="moment-gallery" id="momentGallery">
@@ -647,6 +677,40 @@
             document.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
+            });
+
+            // ==========================================
+            // ЛОГИКА 3D-НАКЛОНА И МАГНИТНОЙ ПОДСВЕТКИ КАРТОЧЕК
+            // ==========================================
+            const tiltCards = document.querySelectorAll('.tilt-card');
+            
+            tiltCards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    
+                    // Вычисляем позицию мыши внутри карточки
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Передаем координаты в CSS переменные для градиента (Spotlight)
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+
+                    // Вычисляем угол наклона от -2.5 до 2.5 градусов
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = ((y - centerY) / centerY) * -2.5; 
+                    const rotateY = ((x - centerX) / centerX) * 2.5;
+
+                    // Применяем наклон, сохраняя базовый масштаб 1
+                    card.style.transform = `scale(1) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    // Возвращаем в исходное плоское состояние
+                    card.style.transform = `scale(1) rotateX(0deg) rotateY(0deg)`;
+                });
             });
 
             // ==========================================
