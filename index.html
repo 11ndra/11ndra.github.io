@@ -428,7 +428,6 @@
         .moment-item.pos-3 { bottom: 12%; left: 15%; --rot: 6deg; }
         .moment-item.pos-4 { bottom: 18%; right: 8%; --rot: -8deg; }
         .moment-item.pos-5 { top: 45%; right: 6%; --rot: 14deg; }
-        .moment-item.pos-6 { top: 35%; left: 8%; --rot: -10deg; }
 
         /* =========================================
            7. МОДАЛЬНОЕ ОКНО
@@ -627,10 +626,6 @@
             <div class="moment-item pos-5 parallax-element" data-speed="-30" data-title="Civ6" data-details="How many places can we conquer together!">
                 <img src="civ6.jpg" alt="Civ6">
             </div>
-
-            <div class="moment-item pos-6 parallax-element" data-speed="20" data-title="Painting by numbers" data-details="I know how much you enjoy this process. Let's create our own masterpiece together.">
-                <img src="painting.jpg" alt="Painting">
-            </div>
         </div>
 
         <div class="modal-overlay" id="modalOverlay">
@@ -804,4 +799,162 @@
                 '🎲', '🐉', '🏰', // DnD
                 '📚', '📖', '🔖', // Книги
                 '🔥', '🕷️', '🌲', // DST
-                '⚔️', '
+                '⚔️', '🛡️', '🐲', // Skyrim
+                '🐑', '👑', '🔮', // Cult of the Lamb
+                '💀', '🧬', '🍳', // Dead Cells
+                '🖋️', '✒️', '✍️', // Каллиграфия
+                '🎨', '🖌️', '🖼️'  // Картины
+            ];
+            
+            const interests = [...baseInterests, ...baseInterests];
+            
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function generateInterests() {
+                const layer = document.getElementById('interestLayer');
+                const shuffledInterests = shuffle([...interests]);
+
+                shuffledInterests.forEach((iconChar, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('interest-wrapper');
+                    
+                    wrapper.style.animationDelay = `${index * 0.05}s`;
+                    
+                    const icon = document.createElement('div');
+                    icon.classList.add('interest-icon');
+                    icon.textContent = iconChar;
+                    
+                    wrapper.style.left = `${Math.random() * 95}vw`;
+                    wrapper.style.top = `${Math.random() * 95}vh`;
+                    
+                    const depth = 0.2 + Math.random() * 1.3;
+                    wrapper.setAttribute('data-depth', depth);
+                    
+                    icon.style.fontSize = `${1.5 + depth * 1.5}rem`;
+                    icon.style.opacity = `${0.05 + depth * 0.08}`;
+                    
+                    wrapper.appendChild(icon);
+                    layer.appendChild(wrapper);
+                });
+                
+                interestWrappers = document.querySelectorAll('.interest-wrapper');
+            }
+
+            // ==========================================
+            // ИНДИВИДУАЛЬНЫЙ 3D-ПАРАЛЛАКС И РАЗЛЕТАНИЕ
+            // ==========================================
+            const parallaxItems = document.querySelectorAll('.parallax-element');
+            const bgContainer = document.getElementById('bgEffects');
+            let interestWrappers = []; 
+
+            document.addEventListener('mousemove', (e) => {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                
+                const moveX = (mouseX - centerX) / centerX;
+                const moveY = (mouseY - centerY) / centerY;
+
+                // 1. Отталкивание иконок интересов
+                interestWrappers.forEach(wrapper => {
+                    const depth = parseFloat(wrapper.getAttribute('data-depth'));
+                    
+                    let transX = moveX * depth * -60;
+                    let transY = moveY * depth * -60;
+
+                    const rect = wrapper.getBoundingClientRect();
+                    const iconX = rect.left + rect.width / 2;
+                    const iconY = rect.top + rect.height / 2;
+                    
+                    const distX = iconX - mouseX;
+                    const distY = iconY - mouseY;
+                    const distance = Math.sqrt(distX * distX + distY * distY);
+                    
+                    if (distance < 120) {
+                        const force = (120 - distance) / 120; 
+                        transX += (distX / distance) * force * 50; 
+                        transY += (distY / distance) * force * 50; 
+                    }
+
+                    wrapper.style.transform = `translate(${transX}px, ${transY}px)`;
+                });
+
+                // 2. Двигаем скриншоты в галерее
+                parallaxItems.forEach(item => {
+                    const speed = parseFloat(item.getAttribute('data-speed')); 
+                    item.style.setProperty('--p-x', `${moveX * speed}px`);
+                    item.style.setProperty('--p-y', `${moveY * speed}px`);
+                });
+            });
+
+            // ==========================================
+            // ИНТЕРАКТИВ И МОДАЛЬНОЕ ОКНО
+            // ==========================================
+            const btn = document.getElementById('heartBtn');
+            const hearts = ['🤍', '✨', '💜', '🌸', '💕'];
+            
+            const overlay = document.getElementById('modalOverlay');
+            const closeBtn = document.getElementById('modalClose');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDetails = document.getElementById('modalDetails');
+            const modalImage = document.getElementById('modalImage');
+            const momentItems = document.querySelectorAll('.moment-item');
+
+            mainCard.addEventListener('mouseenter', () => {
+                gallery.classList.add('active');
+            });
+            
+            momentItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    modalTitle.textContent = item.getAttribute('data-title');
+                    modalDetails.textContent = item.getAttribute('data-details');
+                    
+                    const imgElement = item.querySelector('img');
+                    if (imgElement) {
+                        modalImage.src = imgElement.src;
+                        modalImage.style.display = 'block';
+                    } else {
+                        modalImage.style.display = 'none';
+                    }
+
+                    overlay.classList.add('active');
+                });
+            });
+
+            function closeModal() {
+                overlay.classList.remove('active');
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal();
+            });
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const amount = 10;
+                for (let i = 0; i < amount; i++) {
+                    createHeart(e.clientX, e.clientY);
+                }
+            });
+
+            function createHeart(x, y) {
+                const heart = document.createElement('div');
+                heart.classList.add('floating-heart');
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                const offsetX = (Math.random() - 0.5) * 100;
+                const offsetY = (Math.random() - 0.5) * 50;
+                heart.style.left = (x + offsetX) + 'px';
+                heart.style.top = (y + offsetY) + 'px';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 1500);
+            }
+        });
+    </script>
+</body>
+</html>
