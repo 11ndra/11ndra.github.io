@@ -316,21 +316,21 @@
         }
 
         @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* НОВОВВЕДЕНИЕ: Классы для каскадного проявления текста */
-        .reveal-text {
-            opacity: 0; /* Скрыт по умолчанию */
-            transform: translateY(15px);
+        .floating-heart {
+            position: fixed; /* ИСПРАВЛЕНИЕ: Заменили absolute на fixed для 100% отвязки от Flexbox */
+            pointer-events: none;
+            font-size: 1.8rem;
+            z-index: 100;
+            animation: floatHeartUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            filter: drop-shadow(0 0 10px rgba(180, 100, 255, 0.8));
         }
 
-        #mainCard.animate-in .reveal-text {
-            animation: textCascade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
-
-        /* Устанавливаем задержки для каждого следующего элемента */
+        @keyframes floatHeartUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
         #mainCard .reveal-text:nth-child(1) { animation-delay: 0.2s; }
         #mainCard .reveal-text:nth-child(2) { animation-delay: 0.4s; }
         #mainCard .reveal-text:nth-child(3) { animation-delay: 0.6s; }
@@ -1001,9 +1001,15 @@
 
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // ИСПРАВЛЕНИЕ: Больше не полагаемся на мышь. Вычисляем физический центр кнопки.
+                const rect = btn.getBoundingClientRect();
+                const spawnX = rect.left + rect.width / 2;
+                const spawnY = rect.top + rect.height / 2;
+
                 const amount = 10;
                 for (let i = 0; i < amount; i++) {
-                    createHeart(e.clientX, e.clientY);
+                    createHeart(spawnX, spawnY);
                 }
             });
 
