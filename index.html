@@ -31,12 +31,14 @@
         }
 
         /* =========================================
-           2. БАЗОВЫЕ НАСТРОЙКИ
+           2. БАЗОВЫЕ НАСТРОЙКИ И ЗАЩИТА
            ========================================= */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            /* Защита от случайного выделения текста, ломающего эстетику */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -49,6 +51,16 @@
             min-height: 100vh;
             padding: 20px;
             overflow: hidden; 
+        }
+
+        /* Защита от "призрачного перетаскивания" (Ghost Dragging) */
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            user-select: none;
         }
 
         /* =========================================
@@ -100,6 +112,8 @@
             height: 110vh;
             z-index: 0; 
             pointer-events: none; 
+            /* GPU Аппаратное ускорение */
+            transform: translateZ(0);
         }
 
         .orb {
@@ -108,6 +122,7 @@
             filter: blur(90px); 
             opacity: 0.35; 
             animation: floatOrb 25s infinite alternate ease-in-out;
+            will-change: transform;
         }
 
         .orb-1 { width: 450px; height: 450px; background: #9d4edd; top: 10%; left: 10%; animation-duration: 28s; }
@@ -115,8 +130,8 @@
         .orb-3 { width: 350px; height: 350px; background: #c77dff; top: 35%; left: 35%; animation-duration: 40s; }
 
         @keyframes floatOrb {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.15) translate(50px, 30px); }
+            0% { transform: scale(1) translateZ(0); }
+            100% { transform: scale(1.15) translate3d(50px, 30px, 0); }
         }
 
         .interest-wrapper {
@@ -125,6 +140,7 @@
             z-index: 1;
             opacity: 0;
             animation: fadeInInterest 2s ease forwards;
+            will-change: transform;
         }
 
         @keyframes fadeInInterest {
@@ -136,17 +152,15 @@
             filter: blur(1px); 
             mix-blend-mode: screen; 
             animation: drift 20s infinite linear;
+            will-change: transform;
         }
 
         @keyframes drift {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-            100% { transform: rotate(360deg); }
+            0% { transform: rotate(0deg) translateZ(0); }
+            50% { transform: rotate(180deg) translateZ(0); }
+            100% { transform: rotate(360deg) translateZ(0); }
         }
 
-        /* =========================================
-           НОВОЕ: HTML5 Canvas для Созвездий (Экран блокировки)
-           ========================================= */
         #constellationCanvas {
             position: fixed;
             top: 0;
@@ -189,22 +203,17 @@
             width: 100%;
             text-align: center;
             box-shadow: var(--neon-glow);
-            
-            /* НОВОВВЕДЕНИЕ: Подготовка к 3D-наклону и Spotlight */
             position: relative;
             z-index: 10;
-            overflow: hidden; /* Важно, чтобы свечение не выходило за рамки карточки */
+            overflow: hidden; 
             transform-style: preserve-3d;
-            /* Плавное возвращение карточки в исходное положение, когда мышь уходит */
             transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* НОВОВВЕДЕНИЕ: Эффект магнитного свечения внутри карточки */
         .luxury-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            /* Радиальный градиент, координаты которого будут меняться через JS */
             background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(180, 100, 255, 0.08), transparent 40%);
             z-index: 0;
             pointer-events: none;
@@ -212,15 +221,8 @@
             transition: opacity 0.4s ease;
         }
 
-        .luxury-card:hover::before {
-            opacity: 1; /* Свечение появляется только при наведении */
-        }
-
-        /* Поднимаем весь контент карточки над слоем свечения */
-        .luxury-card > * {
-            position: relative;
-            z-index: 1;
-        }
+        .luxury-card:hover::before { opacity: 1; }
+        .luxury-card > * { position: relative; z-index: 1; }
 
         .lock-icon {
             font-size: 3.5rem;
@@ -262,6 +264,12 @@
             transition: all 0.3s ease;
             letter-spacing: 0.2em;
         }
+        
+        /* Защита от автозаполнения фона браузером */
+        .password-input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px rgba(18, 5, 30, 0.95) inset !important;
+            -webkit-text-fill-color: var(--text-main) !important;
+        }
 
         .password-input:focus {
             background: rgba(0, 0, 0, 0.6);
@@ -299,7 +307,6 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
-            /* Добавляем перспективу контейнеру, чтобы 3D-наклон карточки работал корректно */
             perspective: 1200px;
         }
 
@@ -307,8 +314,7 @@
             max-width: 580px;
             z-index: 10; 
             opacity: 0;
-            /* Базовое состояние для трансформаций */
-            transform: scale(0.98) rotateX(0) rotateY(0);
+            transform: scale(0.98) rotateX(0) rotateY(0) translateZ(0);
         }
 
         #mainCard.animate-in {
@@ -316,26 +322,41 @@
         }
 
         @keyframes fadeInScale {
-            from { opacity: 0; transform: translateY(20px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(20px) scale(0.98) translateZ(0); }
+            to { opacity: 1; transform: translateY(0) scale(1) translateZ(0); }
         }
 
+        /* Абсолютная защита позиционирования сердечек поверх всего */
         .floating-heart {
-            position: fixed; /* ИСПРАВЛЕНИЕ: Заменили absolute на fixed для 100% отвязки от Flexbox */
+            position: fixed; 
             pointer-events: none;
             font-size: 1.8rem;
-            z-index: 100;
+            z-index: 99999; 
             animation: floatHeartUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             filter: drop-shadow(0 0 10px rgba(180, 100, 255, 0.8));
+            will-change: transform, opacity;
         }
 
         @keyframes floatHeartUp {
-            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            0% { transform: translate3d(0, 0, 0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; transform: translate3d(0, -20px, 0) scale(1) rotate(10deg); }
+            100% { transform: translate3d(0, -150px, 0) scale(1.5) rotate(45deg); opacity: 0; }
+        }
+
+        .reveal-text {
+            opacity: 0; 
+            transform: translateY(15px);
+        }
+
+        #mainCard.animate-in .reveal-text {
+            animation: textCascade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
         #mainCard .reveal-text:nth-child(1) { animation-delay: 0.2s; }
         #mainCard .reveal-text:nth-child(2) { animation-delay: 0.4s; }
         #mainCard .reveal-text:nth-child(3) { animation-delay: 0.6s; }
         #mainCard .reveal-text:nth-child(4) { animation-delay: 0.8s; }
-        #mainCard .reveal-text:nth-child(5) { animation-delay: 1.0s; } /* Кнопка */
+        #mainCard .reveal-text:nth-child(5) { animation-delay: 1.0s; }
 
         @keyframes textCascade {
             to { opacity: 1; transform: translateY(0); }
@@ -432,13 +453,23 @@
             box-shadow: var(--neon-glow);
             will-change: transform;
             
+            /* Жесткая защита миниатюр от поломки верстки */
+            max-width: 170px;
+            max-height: 170px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            
             --p-x: 0px;   
             --p-y: 0px;   
             --h-y: 0px;   
             --h-s: 1;     
             --rot: 0deg;  
             
-            transform: translate(var(--p-x), calc(var(--p-y) + var(--h-y))) scale(var(--h-s)) rotate(var(--rot));
+            /* Аппаратное 3D-ускорение (translate3d) для плавности */
+            transform: translate3d(var(--p-x), calc(var(--p-y) + var(--h-y)), 0) scale(var(--h-s)) rotate(var(--rot));
         }
 
         .moment-item:hover {
@@ -481,7 +512,7 @@
         .moment-item.pos-5 { top: 45%; right: 6%; --rot: 14deg; }
 
         /* =========================================
-           7. МОДАЛЬНОЕ ОКНО
+           7. МОДАЛЬНОЕ ОКНО (Жесткая защита)
            ========================================= */
         .modal-overlay {
             position: fixed;
@@ -511,11 +542,27 @@
             padding: 2.5rem;
             max-width: 600px;
             width: 90%;
+            
+            /* ИСПРАВЛЕНИЕ: Удален Flexbox, вызывающий баг обрезки контента. */
+            display: block;
             text-align: center;
+            
+            /* Жесткое ограничение высоты для гигантских скриншотов */
+            max-height: 85vh;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            
             box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
             transform: scale(0.95);
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; /* Для кнопки закрытия */
         }
+
+        /* Кастомный красивый скроллбар */
+        .modal-content::-webkit-scrollbar { width: 6px; }
+        .modal-content::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 10px; margin: 10px; }
+        .modal-content::-webkit-scrollbar-thumb { background: rgba(180, 100, 255, 0.4); border-radius: 10px; }
+        .modal-content::-webkit-scrollbar-thumb:hover { background: rgba(180, 100, 255, 0.7); }
 
         .modal-overlay.active .modal-content {
             transform: scale(1);
@@ -526,11 +573,18 @@
             font-size: 1.8rem;
             margin-bottom: 1.2rem;
             text-shadow: 0 0 10px rgba(255,255,255,0.2);
+            /* Убеждаемся, что заголовок не наезжает на кнопку закрытия */
+            padding-right: 30px; 
+            padding-left: 30px;
         }
 
         .modal-content img {
             max-width: 100%;
-            height: auto;
+            /* Защита 45% высоты экрана: картинка будет видна целиком без скролла */
+            max-height: 45vh; 
+            width: auto;
+            object-fit: contain; 
+            
             border-radius: 12px;
             margin-bottom: 1.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -544,6 +598,7 @@
         }
 
         .btn-close {
+            /* Кнопка закрытия фиксируется относительно самой карточки */
             position: absolute;
             top: 20px;
             right: 20px;
@@ -559,6 +614,7 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 100; 
         }
         
         .btn-close:hover {
@@ -567,6 +623,37 @@
             border-color: var(--neon-border);
             box-shadow: 0 0 15px rgba(180, 100, 255, 0.3);
             transform: rotate(90deg);
+        }
+
+        /* =========================================
+           8. ЗАЩИТА МОБИЛЬНЫХ УСТРОЙСТВ (Media Queries)
+           ========================================= */
+        @media (max-width: 768px) {
+            /* Уменьшаем шрифты */
+            h1 { font-size: 1.8rem; }
+            p.message { font-size: 0.95rem; }
+            .luxury-card { padding: 2.5rem 1.5rem; }
+            
+            /* Ужимаем миниатюры */
+            .moment-item { padding: 5px; }
+            .moment-item img, .moment-placeholder { 
+                width: 90px; 
+                height: 90px; 
+                font-size: 0.7rem; 
+            }
+            
+            /* Перестраиваем координаты, чтобы освободить центр экрана на телефонах */
+            .moment-item.pos-1 { top: 5%; left: 2%; --rot: -8deg; }
+            .moment-item.pos-2 { top: 5%; right: 2%; --rot: 5deg; }
+            .moment-item.pos-3 { bottom: 5%; left: 2%; --rot: 8deg; }
+            .moment-item.pos-4 { bottom: 5%; right: 2%; --rot: -5deg; }
+            .moment-item.pos-5 { top: 40%; right: -2%; --rot: 10deg; }
+            
+            .lock-icon { font-size: 2.5rem; }
+            .lock-title { font-size: 1.5rem; }
+            .btn-romantic { padding: 12px 24px; font-size: 0.8rem; }
+            .modal-content { padding: 1.5rem; }
+            .btn-close { top: 10px; right: 10px; width: 35px; height: 35px; }
         }
 
     </style>
@@ -611,7 +698,7 @@
             <p class="lock-subtitle">I could do it in a simpler way, but...</p>
             
             <div class="password-container">
-                <input type="password" id="passwordInput" class="password-input" placeholder="Password, please :)">
+                <input type="password" id="passwordInput" class="password-input" placeholder="Password, please :)" autocomplete="off">
             </div>
             
             <button id="unlockBtn" class="btn-romantic">Jump in!</button>
@@ -620,9 +707,7 @@
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div id="mainContent">
-        <!-- Добавлен класс tilt-card для 3D наклона -->
         <div class="luxury-card tilt-card" id="mainCard">
-            <!-- Добавлены классы reveal-text для каскадного появления -->
             <h1 class="reveal-text">So, let the fun begin</h1>
             <p class="message reveal-text">
                 I don't know how to do it properly or in a romantic way. So, I thought maybe this is the most "geek" way to express not only my feelings to you, but also to offer you to form a bond.
@@ -687,29 +772,23 @@
             tiltCards.forEach(card => {
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
-                    
-                    // Вычисляем позицию мыши внутри карточки
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     
-                    // Передаем координаты в CSS переменные для градиента (Spotlight)
                     card.style.setProperty('--mouse-x', `${x}px`);
                     card.style.setProperty('--mouse-y', `${y}px`);
 
-                    // Вычисляем угол наклона от -2.5 до 2.5 градусов
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
                     
                     const rotateX = ((y - centerY) / centerY) * -2.5; 
                     const rotateY = ((x - centerX) / centerX) * 2.5;
 
-                    // Применяем наклон, сохраняя базовый масштаб 1
-                    card.style.transform = `scale(1) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    card.style.transform = `scale(1) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
                 });
                 
                 card.addEventListener('mouseleave', () => {
-                    // Возвращаем в исходное плоское состояние
-                    card.style.transform = `scale(1) rotateX(0deg) rotateY(0deg)`;
+                    card.style.transform = `scale(1) rotateX(0deg) rotateY(0deg) translateZ(0)`;
                 });
             });
 
@@ -737,15 +816,12 @@
                     this.vy = (Math.random() - 0.5) * 0.5; 
                     this.radius = Math.random() * 1.5 + 0.5;
                 }
-
                 update() {
                     this.x += this.vx;
                     this.y += this.vy;
-
                     if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
                     if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
                 }
-
                 draw() {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -914,7 +990,6 @@
             // ИНДИВИДУАЛЬНЫЙ 3D-ПАРАЛЛАКС И РАЗЛЕТАНИЕ
             // ==========================================
             const parallaxItems = document.querySelectorAll('.parallax-element');
-            const bgContainer = document.getElementById('bgEffects');
             let interestWrappers = []; 
 
             document.addEventListener('mousemove', (e) => {
@@ -924,7 +999,6 @@
                 const moveX = (mouseX - centerX) / centerX;
                 const moveY = (mouseY - centerY) / centerY;
 
-                // 1. Отталкивание иконок интересов
                 interestWrappers.forEach(wrapper => {
                     const depth = parseFloat(wrapper.getAttribute('data-depth'));
                     
@@ -945,10 +1019,10 @@
                         transY += (distY / distance) * force * 50; 
                     }
 
-                    wrapper.style.transform = `translate(${transX}px, ${transY}px)`;
+                    // Аппаратное ускорение для иконок
+                    wrapper.style.transform = `translate3d(${transX}px, ${transY}px, 0)`;
                 });
 
-                // 2. Двигаем скриншоты в галерее
                 parallaxItems.forEach(item => {
                     const speed = parseFloat(item.getAttribute('data-speed')); 
                     item.style.setProperty('--p-x', `${moveX * speed}px`);
@@ -1002,7 +1076,7 @@
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 
-                // ИСПРАВЛЕНИЕ: Больше не полагаемся на мышь. Вычисляем физический центр кнопки.
+                // Физически точное вычисление центра кнопки (защита от слома Flexbox)
                 const rect = btn.getBoundingClientRect();
                 const spawnX = rect.left + rect.width / 2;
                 const spawnY = rect.top + rect.height / 2;
@@ -1019,6 +1093,7 @@
                 heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
                 const offsetX = (Math.random() - 0.5) * 100;
                 const offsetY = (Math.random() - 0.5) * 50;
+                // Благодаря position: fixed сердечки позиционируются строго относительно экрана
                 heart.style.left = (x + offsetX) + 'px';
                 heart.style.top = (y + offsetY) + 'px';
                 document.body.appendChild(heart);
